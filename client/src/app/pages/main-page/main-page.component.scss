@@ -1,0 +1,50 @@
+.logo {
+    margin-top: 9vh;
+}
+
+.container {
+    height: 100%;
+}
+
+.team-name-box {
+    position: absolute;
+    bottom: 10vh;
+    right: 1rem;
+    border: 3px solid black;
+    padding: 0.625rem 3.75rem;
+}
+
+@media (max-width: 740px) {
+    .team-name-box {
+        position: relative;
+        bottom: 0;
+        right: 0;
+    }
+}
+
+.justified {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2vh;
+}
+
+.button {
+    margin-top: 10px;
+    text-align: center;
+    font-size: large;
+    padding: 0px 40px;
+    height: 80px;
+}
+
+.header-item {
+    justify-content: center;
+    text-align: center;
+}
+
+.server-message {
+    justify-content: center;
+    width: 20%;
+    min-width: min-content;
+}

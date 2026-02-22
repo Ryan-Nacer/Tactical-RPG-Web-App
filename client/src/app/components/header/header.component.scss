@@ -1,0 +1,46 @@
+.app-header {
+    height: 100%;
+    background-color: #575757;
+    color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.home-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    color: #ffffff;
+    text-decoration: none;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.home-link:hover,
+.home-link:focus-visible {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.home-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: block;
+}
+
+.title {
+    font-size: 1.1rem;
+    font-weight: 700;
+}

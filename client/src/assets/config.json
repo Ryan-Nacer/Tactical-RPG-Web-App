@@ -1,0 +1,74 @@
+{
+    "title": "Titre du Jeu",
+    "logo": "logo.jpg",
+    "teamNames": ["Bintou Ali", "Sarah Allouane", "Ryan Naceur", "Soeuchelle Michel", "Salematou Camara", "Yasmine Ghellache"],
+
+    "toolDescriptionMap": {
+        "base": "",
+        "wall": "",
+        "door": "",
+        "water": "",
+        "ice": "",
+        "start": "",
+        "flag": "",
+        "heal": "",
+        "combat": ""
+    },
+
+    "playerAvatars": [
+        {
+            "imageUrl": "barbie.png",
+            "avatarName": "Barbie"
+        },
+
+        {
+            "imageUrl": "raquelle.png",
+            "avatarName": "Raquelle"
+        },
+
+        {
+            "imageUrl": "nikki.png",
+            "avatarName": "Nikki"
+        },
+
+        {
+            "imageUrl": "teresa.png",
+            "avatarName": "Teresa"
+        },
+
+        {
+            "imageUrl": "ken.png",
+            "avatarName": "Ken"
+        },
+
+        {
+            "imageUrl": "blissa.png",
+            "avatarName": "Blissa"
+        },
+
+        {
+            "imageUrl": "ryan.png",
+            "avatarName": "Ryan"
+        },
+
+        {
+            "imageUrl": "skipper.png",
+            "avatarName": "Skipper"
+        },
+
+        {
+            "imageUrl": "stacie.png",
+            "avatarName": "Stacie"
+        },
+
+        {
+            "imageUrl": "taffy.png",
+            "avatarName": "Taffy"
+        },
+
+        {
+            "imageUrl": "tawny.png",
+            "avatarName": "Tawny"
+        }
+    ]
+}

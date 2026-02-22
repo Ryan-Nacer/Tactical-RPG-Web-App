@@ -1,0 +1,10 @@
+<div class="visible-game-list">
+    @if (visibleGames.length === 0) {
+    <p>Aucun jeu visible disponible. Créez-en un depuis la page d'administration!</p>
+    } @for(game of visibleGames; track game.id){
+    <div class="game-card">
+        <app-game-card [game]="game"></app-game-card>
+        <button [routerLink]="['/character-creation']">Créer une partie</button>
+    </div>
+    }
+</div>

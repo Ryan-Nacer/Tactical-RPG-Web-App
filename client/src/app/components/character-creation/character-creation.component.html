@@ -1,0 +1,58 @@
+<h2>Création du personnage</h2>
+
+<div class="character-creation-form">
+    <div class="avatar-card">
+        <div class="avatar-name">
+            <label>Nom du personnage:</label>
+            <input type="text" [(ngModel)]="name" placeholder="Entrez le nom du personnage" />
+        </div>
+
+        <div>
+            <h3>Choisir un avatar</h3>
+            <app-avatar-list [randomAvatarIndex]="randomAvatarIndex()" (avatarSelected)="onAvatarSelected($event)"> </app-avatar-list>
+            @if (selectedAvatar) {
+            <p>Avatar sélectionné: {{ selectedAvatar.avatarName }}</p>
+            }
+        </div>
+
+        <hr />
+
+        <div class="section">
+            <button class="random-character" (click)="generateRandomCharacter()">Générer un personnage aléatoire</button>
+        </div>
+
+        <div class="section">
+            <button class="save-avatar" (click)="saveAvatarChoice()" [disabled]="!selectedAvatar">Sauvegarder et attendre</button>
+        </div>
+    </div>
+
+    <div class="avatar-characteristics">
+        <div class="section">
+            <h3>Attributs</h3>
+            <p>Vie : {{ attributes.life }}</p>
+            <p>Rapidité : {{ attributes.speed }}</p>
+            <p>Attaque : {{ attributes.attack }}</p>
+            <p>Défense : {{ attributes.defense }}</p>
+        </div>
+
+        <div class="section">
+            <h3>Bonus +2</h3>
+            <button (click)="applyBonus('life')">Bonus sur Vie</button>
+            <button (click)="applyBonus('speed')">Bonus sur Rapidité</button>
+
+            @if (bonusAttribute) {
+            <p>Bonus appliqué sur : {{ bonusAttributeLabel }}</p>
+            }
+        </div>
+
+        <hr />
+
+        <div class="section">
+            <h3>Assignation des dés</h3>
+            <p>Attaque : {{ dice.attack }}</p>
+            <p>Défense: {{ dice.defense }}</p>
+            <button (click)="assignDice('D6')">D6 sur Attaque</button>
+            <button (click)="assignDice('D4')">D4 sur Attaque</button>
+        </div>
+    </div>
+</div>

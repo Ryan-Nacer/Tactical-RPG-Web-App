@@ -1,0 +1,10 @@
+@if (errors.length) {
+<div class="error-box" role="alert">
+    <p class="title">Erreurs</p>
+    <ul>
+        @for (err of errors; track err) {
+        <li>{{ err }}</li>
+        }
+    </ul>
+</div>
+}

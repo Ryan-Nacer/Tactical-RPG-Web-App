@@ -1,0 +1,76 @@
+.form-container {
+    padding: 20px;
+}
+
+.sectionHeader {
+    margin-bottom: 20px;
+
+    h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+}
+
+.formCard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.blockLabel {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.choice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+
+    input[type='radio'] {
+        cursor: pointer;
+    }
+
+    span {
+        cursor: pointer;
+    }
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.primaryBtn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover {
+        background-color: #0056b3;
+    }
+}

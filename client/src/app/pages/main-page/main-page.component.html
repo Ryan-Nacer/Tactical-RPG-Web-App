@@ -1,0 +1,24 @@
+<div class="container justified">
+    @if (config.isLoaded) {
+    <div class="logo">
+        <img [src]="config.getLogoPath()" alt="Logo Projet" />
+    </div>
+
+    <h1 class="header-item">{{ config.getTitle() }}</h1>
+    <section id="server-message" class="justified">
+        <div class="justified">
+            <button class="button" routerLink="/game">Joindre une partie</button>
+            <button class="button" routerLink="/match-creation-page">Créer une partie</button>
+            <button class="button" routerLink="/admin-page">Administrer les jeux</button>
+        </div>
+    </section>
+
+    <div class="team-name-box">
+        <h3>Équipe 311</h3>
+
+        @for (name of config.getTeamNames(); track $index) {
+        <p>{{ name }}</p>
+        }
+    </div>
+    }
+</div>

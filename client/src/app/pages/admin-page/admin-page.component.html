@@ -1,0 +1,49 @@
+<header>
+    <h1>Page Administration des jeux</h1>
+</header>
+
+<main>
+    <h2 class="games-section-title">Jeux offerts</h2>
+
+    @if (isLoading) {
+    <div class="loading-message">
+        <p>Chargement des jeux...</p>
+    </div>
+    }
+
+    <div>
+        <button (click)="openCreateForm()">Créer un nouveau jeu</button>
+    </div>
+
+    @if (showCreateForm) {
+    <div class="modal-overlay" (click)="closeCreateForm()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <button type="button" class="modal-close" (click)="closeCreateForm()" aria-label="Fermer">✕</button>
+            <app-game-setup-form (formSubmitted)="onFormSubmitted($event)"></app-game-setup-form>
+        </div>
+    </div>
+    }
+
+    <div class="game-list">
+        @if (!isLoading && games.length === 0) {
+        <p>Aucun jeu disponible. Créez-en un!</p>
+        } @for (game of games; track game.id){
+        <div class="game">
+            <app-game-card class="game-card" [game]="game"></app-game-card>
+            <div class="game-actions">
+                <button type="button" [routerLink]="['/edit-game-page', game.id]">Éditer</button>
+                <button type="button" (click)="deleteGame(game.id)">Supprimer</button>
+                <div>
+                    @if(game.isVisible){
+                    <button type="button" (click)="toggleVisibility(game)">Rendre le jeu invisible</button>
+                    }@else {
+                    <button type="button" (click)="toggleVisibility(game)">Rendre le jeu visible</button>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+</main>
+
+<footer></footer>

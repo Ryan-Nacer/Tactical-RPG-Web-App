@@ -1,0 +1,21 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+app-header {
+    height: 6vh;
+    flex-shrink: 0;
+}
+
+.app-content {
+    height: 88vh;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+app-footer {
+    height: 6vh;
+    flex-shrink: 0;
+}

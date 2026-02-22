@@ -1,0 +1,92 @@
+<h1 class="pageTitle">Édition du jeu</h1>
+
+<div class="editorLayout">
+    <aside class="leftPalette">
+        <section class="toolSection">
+            <h3 class="sectionTitle">Tuiles</h3>
+
+            <div class="toolBar" role="toolbar" aria-label="Outils de tuiles">
+                @for (tile of tileValues; track $index) {
+                <button type="button" class="toolIconBtn" [class.active]="activeTool === tile" (click)="setActiveTool(tile)">
+                    <span [class]="`toolIcon ${tile}`"></span>
+                    <pre class="buttonDescription">{{ this.config.getToolDescription(tile) }}</pre>
+                </button>
+                }
+            </div>
+        </section>
+
+        <section class="toolSection">
+            <h3 class="sectionTitle">Objets</h3>
+
+            <div class="toolBar" role="toolbar" aria-label="Outils d'objets">
+                @for (object of objectValues; track $index) { @if (game.mode === 'CTF' || object != 'flag') {
+                <button
+                    type="button"
+                    class="toolIconBtn"
+                    [class.active]="activeTool === object"
+                    [class.disabled]="remainingMap[object] === 0"
+                    [disabled]="remainingMap[object] === 0"
+                    (click)="setActiveTool(object)"
+                >
+                    <span [class]="`toolIcon ${object}`"></span>
+                    <span class="toolCount">{{ remainingMap[object] }}</span>
+
+                    <pre class="buttonDescription"></pre>
+                </button>
+                } }
+            </div>
+        </section>
+    </aside>
+
+    <section class="gridArea">
+        <div class="gridCapture" #gridCapture>
+            <app-game-grid
+                [gridSize]="game.size"
+                [cells]="game.cells"
+                [selectedCell]="selectedCell"
+                [allowLeftDrag]="isTileTool(activeTool)"
+                (cellClicked)="onCellClicked($event)"
+                (cellRightClicked)="onCellRightClicked($event)"
+            ></app-game-grid>
+        </div>
+
+        <p class="metaLine">Game ID: {{ game.id }}</p>
+    </section>
+
+    <aside class="toolsPanel">
+        <section class="toolSection">
+            <h3 class="sectionTitle">Informations du jeu</h3>
+
+            <div class="formGroup">
+                <label for="game.name">Nom du jeu</label>
+                <input id="game.name" type="text" placeholder="Nom du jeu" [(ngModel)]="game.name" />
+            </div>
+
+            <div class="formGroup">
+                <label for="game.description">Description</label>
+                <textarea id="game.description" rows="3" placeholder="Description du jeu" [(ngModel)]="game.description"></textarea>
+            </div>
+        </section>
+
+        <section class="toolSection">
+            <h3 class="sectionTitle">Contraintes</h3>
+            <app-error-box [errors]="errors"></app-error-box>
+        </section>
+
+        <section class="toolSection">
+            <h3 class="sectionTitle">Actions</h3>
+
+            <div class="actionButtons">
+                <button type="button" class="secondaryBtn" (click)="onResetClicked()">Réinitialiser</button>
+
+                <button type="button" class="primaryBtn" [disabled]="getIsSaving()" (click)="onSaveButtonClicked()">Enregistrer</button>
+
+                <button type="button" class="dangerBtn" (click)="onCancelClicked()">Annuler</button>
+            </div>
+
+            @if (getIsSaving()) {
+            <p class="savingLine">Saving...</p>
+            }
+        </section>
+    </aside>
+</div>

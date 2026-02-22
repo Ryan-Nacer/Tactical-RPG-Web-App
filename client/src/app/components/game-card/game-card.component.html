@@ -1,0 +1,14 @@
+<div class="game-card">
+    <div class="game-image">
+        <img [src]="game.imageURL" />
+
+        <span class="game-description">Description du jeux : {{ game.description }}</span>
+    </div>
+
+    <div class="game-info">
+        <p class="game-name">{{ game.name }}</p>
+        <p class="game-size">Taille:{{ game.size }}</p>
+        <p class="game-date">Modifié le :{{ game.lastModified }}</p>
+        <p class="game-mode">Mode de jeu : {{ game.mode }}</p>
+    </div>
+</div>

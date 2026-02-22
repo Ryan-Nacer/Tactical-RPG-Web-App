@@ -1,0 +1,16 @@
+.game-card {
+    display: grid;
+    grid-template-columns: 0.75fr 0.25fr;
+    padding: 10px;
+}
+
+button {
+    background-color: pink;
+    border: none;
+    height: 100px;
+    align-self: center;
+
+    &:hover {
+        background-color: hotpink;
+    }
+}

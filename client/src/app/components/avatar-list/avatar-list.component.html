@@ -1,0 +1,13 @@
+<div class="container">
+    <button (click)="prevAvatar()">Précédent</button>
+
+    <div class="avatar-list">
+        @for(playerAvatar of visibleAvatars; let i = $index; track i){
+        <div class="avatar-card" [class.active]="isActive(i)" (click)="sendChoice(playerAvatar, i)">
+            <app-player-card [avatarName]="playerAvatar.avatarName" [imageUrl]="playerAvatar.imageUrl"> </app-player-card>
+        </div>
+        }
+    </div>
+
+    <button (click)="nextAvatar()">Suivant</button>
+</div>

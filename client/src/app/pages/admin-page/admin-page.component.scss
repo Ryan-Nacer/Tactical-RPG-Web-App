@@ -1,0 +1,91 @@
+.loading-message {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 18px;
+    color: #666;
+}
+
+.game-list {
+    overflow-y: auto;
+    display: grid;
+    border-radius: 12px;
+}
+
+.game {
+    display: grid;
+    grid-template-columns: 0.75fr 0.25fr;
+    border: 1px solid rgb(16, 5, 5);
+
+    align-items: center;
+    padding: 12px;
+}
+
+.game-info {
+    display: grid;
+    padding: 12px;
+}
+
+.game-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.game-image {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(212, 247, 235);
+}
+
+.game-description {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    background: rgb(255, 254, 169);
+}
+
+.game-image:hover .game-description {
+    display: block;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #666;
+    z-index: 1001;
+
+    &:hover {
+        color: #000;
+    }
+}

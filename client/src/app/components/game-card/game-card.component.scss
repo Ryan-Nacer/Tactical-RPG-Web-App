@@ -1,0 +1,32 @@
+.game-card {
+    display: grid;
+    grid-template-columns: 0.25fr 0.75fr;
+    align-items: center;
+    padding: 12px;
+}
+
+.game-info {
+    display: grid;
+    padding: 12px;
+}
+
+.game-image {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(212, 247, 235);
+}
+
+.game-description {
+    display: none;
+
+    position: absolute;
+    bottom: 100%;
+
+    background: rgb(255, 254, 169);
+}
+
+.game-image:hover .game-description {
+    display: block;
+}

@@ -1,0 +1,25 @@
+.error-box {
+    background: #3b1f1f;
+    border: 1px solid #d93025;
+    color: #f4d3d3;
+    padding: 12px 14px;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.error-box .title {
+    margin: 0 0 6px 0;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.error-box ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.error-box li {
+    margin: 2px 0;
+}

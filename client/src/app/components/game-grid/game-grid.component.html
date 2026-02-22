@@ -1,0 +1,16 @@
+<div class="game-grid" [style.gridTemplateColumns]="gridTemplate" [style.gridTemplateRows]="gridTemplate" (mouseleave)="onGridMouseLeave()">
+    @for ( cell of cells; track $index ) {
+    <div
+        class="game-grid-cell"
+        [class]="getTileClass(cell)"
+        [class.is-selected]="isSelected(cell)"
+        (mousedown)="onCellMouseDown($event, cell)"
+        (mouseenter)="onCellMouseEnter(cell)"
+        (contextmenu)="onCellRightClick($event)"
+    >
+        @if (cell.object) {
+        <span class="cellObject" [class]="getObjectClass(cell.object)" [title]="getObjectDescription(cell.object)"></span>
+        }
+    </div>
+    }
+</div>

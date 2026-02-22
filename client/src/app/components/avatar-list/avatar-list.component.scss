@@ -1,0 +1,52 @@
+.container,
+.avatar-list {
+    display: flex;
+    flex-direction: row;
+}
+
+.avatar-list {
+    border: 0.5px black solid;
+    justify-content: center;
+    gap: 10px;
+    margin: 1%;
+    align-items: center;
+    padding: 30px;
+    overflow: hidden;
+    position: relative;
+}
+
+.container {
+    justify-content: center;
+    margin: 1px;
+    align-items: center;
+}
+
+.avatar-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    transition:
+        transform 0.3s ease,
+        scale 0.3s ease-in,
+        opacity 0.3s ease;
+
+    &.active {
+        scale: 1.5;
+        opacity: 1;
+        z-index: 10;
+    }
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: pink;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: hotpink;
+    }
+}

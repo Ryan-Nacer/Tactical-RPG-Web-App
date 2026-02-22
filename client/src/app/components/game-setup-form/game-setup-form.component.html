@@ -1,0 +1,50 @@
+<div class="form-container">
+    <section class="sectionHeader">
+        <h2>Créer un nouveau jeu</h2>
+    </section>
+
+    <div class="formCard">
+        <!-- Mode de jeu -->
+        <div class="block">
+            <div class="blockLabel">Mode de jeu :</div>
+            <div class="choices">
+                <label class="choice">
+                    <input type="radio" name="mode" [(ngModel)]="mode" value="CLASSIC" />
+                    <span>Classique</span>
+                </label>
+
+                <label class="choice">
+                    <input type="radio" name="mode" [(ngModel)]="mode" value="CTF" />
+                    <span>Capture The Flag (CTF)</span>
+                </label>
+            </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- Taille de carte -->
+        <div class="block">
+            <div class="blockLabel">Taille de Carte :</div>
+            <div class="choices">
+                <label class="choice">
+                    <input type="radio" name="size" [(ngModel)]="size" value="10" />
+                    <span>petite (10×10 - 2 joueurs)</span>
+                </label>
+
+                <label class="choice">
+                    <input type="radio" name="size" [(ngModel)]="size" value="15" />
+                    <span>moyenne (15×15 - 2 à 4 joueurs)</span>
+                </label>
+
+                <label class="choice">
+                    <input type="radio" name="size" [(ngModel)]="size" value="20" />
+                    <span>grande (20×20 - 2 à 6 joueurs)</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="primaryBtn" type="button" (click)="submit()">Créer le jeu</button>
+        </div>
+    </div>
+</div>

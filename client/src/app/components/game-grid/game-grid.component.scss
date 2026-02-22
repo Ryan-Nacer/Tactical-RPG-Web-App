@@ -1,0 +1,80 @@
+.grid-container {
+    background-color: #2c2c2c;
+    padding: 10px;
+    border: 8px solid #3d3d3d;
+    border-radius: 4px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.game-grid {
+    display: grid;
+    // gridSize is handled via [style.grid-template-columns] in HTML
+    width: 650px;
+    height: 650px;
+    background-color: #555;
+    border: 1px solid #000;
+    cursor: crosshair;
+}
+
+.game-grid-cell {
+    border: 1px solid rgba(255, 255, 255, 0.1); // Subtle grid lines
+    box-sizing: border-box;
+    background-size: cover;
+    background-repeat: no-repeat;
+    image-rendering: pixelated; // Keeps RPG assets sharp
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        outline: 2px solid #fff;
+        z-index: 5;
+    }
+}
+
+.game-grid-cell.tile-base {
+    // background-color: #8ba08a;
+    background-image: url('/assets/tiles/grass.png');
+}
+.game-grid-cell.tile-door {
+    background-image: url('/assets/tiles/door.png');
+}
+.game-grid-cell.tile-wall {
+    // background-color: #e9685e;
+    background-image: url('/assets/tiles/wall.png');
+}
+.game-grid-cell.tile-water {
+    // background-color: #4a90e2;
+    background-image: url('/assets/tiles/water.png');
+}
+.game-grid-cell.tile-ice {
+    // background-color: #a0c9ef;
+    background-image: url('/assets/tiles/ice.png');
+}
+.game-grid-cell:hover {
+    background-color: #cad4ed;
+}
+
+.game-grid-cell {
+    position: relative;
+}
+
+.cellObject {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+/* Object images */
+.cellObject.obj-start {
+    background-image: url('/assets/objects/depart.png');
+}
+.cellObject.obj-flag {
+    background-image: url('/assets/objects/flag.png');
+}
+.cellObject.obj-heal {
+    background-image: url('/assets/objects/heal.png');
+}
+.cellObject.obj-combat {
+    background-image: url('/assets/objects/combat.png');
+}
