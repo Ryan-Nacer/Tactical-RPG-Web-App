@@ -15,6 +15,9 @@ A high-performance, full-stack web application for creating, managing, and playi
 
 ---
 
+> **⚠️ Work in Progress:** This project is actively being developed as part of the LOG2995 course. Core mechanics are functional, but UI polish and additional game modes are currently being implemented.
+---
+
 ## 🚀 Technical Deep Dive (For Recruiters)
 
 This project serves as a showcase for advanced software engineering principles and complex algorithm implementation:
