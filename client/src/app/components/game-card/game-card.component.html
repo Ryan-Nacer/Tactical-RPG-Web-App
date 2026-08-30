@@ -1,14 +1,24 @@
 <div class="game-card">
     <div class="game-image">
         <img [src]="game.imageURL" />
-
         <span class="game-description">Description du jeux : {{ game.description }}</span>
     </div>
 
     <div class="game-info">
         <p class="game-name">{{ game.name }}</p>
-        <p class="game-size">Taille:{{ game.size }}</p>
-        <p class="game-date">Modifié le :{{ game.lastModified }}</p>
-        <p class="game-mode">Mode de jeu : {{ game.mode }}</p>
+        <p class="game-size">
+            <span class="game-size-label">CARTE :</span>
+            <span class="size-chip"
+                >{{ game.size }} x {{ game.size }}
+                {{ game.size === 10 ? '(petite)' : game.size === 15 ? '(moyenne)' : game.size === 20 ? '(grande)' : '' }}</span
+            >
+        </p>
+        <p class="game-date">
+            <span class="game-date-label">MODIFIÉ :</span> <span class="date-chip">{{ game.lastModified }}</span>
+        </p>
+        <p class="game-mode">
+            <span class="game-mode-label">MODE :</span>
+            <span class="mode-badge" [class.ctf]="game.mode === 'CTF'">{{ game.mode === 'CTF' ? '🚩 CTF' : '⚔️ Classic' }}</span>
+        </p>
     </div>
 </div>

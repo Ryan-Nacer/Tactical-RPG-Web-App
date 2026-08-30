@@ -1,0 +1,10 @@
+<div class="overlay" role="dialog" aria-modal="true" aria-label="Message de fin de combat">
+    <div class="modal">
+        <div class="result-chip" [class.winner]="isWinner" [class.loser]="!isWinner && !isNeutral" [class.neutral]="isNeutral">
+            {{ isTie ? 'Egalite' : isWinner ? 'Victoire' : 'Resultat' }}
+        </div>
+        <div class="message" [class.winner]="isWinner" [class.loser]="!isWinner && !isNeutral" [class.neutral]="isNeutral" role="status">
+            {{ message }}
+        </div>
+    </div>
+</div>

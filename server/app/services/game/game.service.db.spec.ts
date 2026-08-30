@@ -1,9 +1,24 @@
-import { GameGateway, GameListUpdateType } from '@app/gateways/game/game.gateway';
+import { GameGateway } from '@app/gateways/game/game.gateway';
+import { GameListUpdateType } from '@app/gateways/game/game.gateway.events';
 import { GameDocument, Games } from '@app/model/database/game';
 import { GameService } from '@app/services/game/game.service';
 import { GameValidationService } from '@app/services/game/game.validation.service';
 import { Model } from 'mongoose';
 
+/**
+ * Strategie :
+ * - verifier que GameService envoie les bonnes requetes au modele de persistence
+ * - confirmer que les filtres de recherche et les suppressions utilises par la fonctionnalite
+ *   correspondent bien au contrat attendu avec la base de donnees
+ *
+ * Cas limites cibles :
+ * - filtrage des jeux visibles seulement
+ * - recherche par identifiant
+ * - suppression reussie avec emission de mise a jour
+ *
+ * L'objectif n'est pas de retester la logique metier ici, mais bien le dialogue avec
+ * la couche de donnees, qui est explicitement demande dans les consignes.
+ */
 describe('GameService DB', () => {
     const gameId = 'game-1';
 
@@ -31,6 +46,7 @@ describe('GameService DB', () => {
             checkTerrainCoverage: jest.fn(),
             checkStartPoints: jest.fn(),
             checkFlagPlacement: jest.fn(),
+            checkShrines: jest.fn(),
             hasInaccessibleTiles: jest.fn(),
         } as unknown as jest.Mocked<GameValidationService>;
         gateway = { emitListUpdated: jest.fn() } as unknown as jest.Mocked<GameGateway>;

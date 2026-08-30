@@ -1,20 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { HttpStatusCode } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
-import { GameSetupData, GameSetupFormComponent } from '@app/components/game-setup-form/game-setup-form.component';
+import { GameSetupFormComponent } from '@app/components/game-setup-form/game-setup-form.component';
+import { GameSetupData } from '@app/interfaces/game';
+import { ERROR_MESSAGES } from '@app/pages/pages.constants';
 import { GameClientService } from '@app/services/game-client.service';
 import { GameSocketService } from '@app/services/game-socket.service';
+import { NotificationService } from '@app/services/notifications/notification.service';
 import { Game } from '@common/game';
-import { Subject, takeUntil } from 'rxjs';
-
-const ERROR_MESSAGES = {
-    loadGamesError: 'Erreur lors du chargement des jeux',
-    gameAlreadyDeleted: 'Ce jeu a déjà été supprimé.',
-    deleteGameError: 'Impossible de supprimer le jeu. Réessayez.',
-    toggleVisibilityError: 'Impossible de modifier la visibilité du jeu. Réessayez.',
-} as const;
+import { EMPTY, Subject, catchError, startWith, switchMap, takeUntil, tap } from 'rxjs';
 
 @Component({
     selector: 'app-admin-page',
@@ -27,47 +23,72 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     games: Game[] = [];
     showCreateForm = false;
     isLoading = true;
+    pendingDeletionGame: Game | null = null;
     private readonly destroySubject = new Subject<void>();
-
-    constructor(
-        private readonly gameClientService: GameClientService,
-        private readonly gameSocketService: GameSocketService,
-        private readonly router: Router,
-    ) {}
+    private readonly reloadGamesSubject = new Subject<void>();
+    private readonly notificationService = inject(NotificationService);
+    private readonly gameClientService = inject(GameClientService);
+    private readonly gameSocketService = inject(GameSocketService);
+    private readonly router = inject(Router);
 
     ngOnInit(): void {
-        this.loadGames();
+        this.reloadGamesSubject
+            .pipe(
+                startWith(void 0),
+                switchMap(() =>
+                    this.gameClientService.getAllGames().pipe(
+                        tap((games: Game[]) => {
+                            this.games = games;
+                            this.isLoading = false;
+                        }),
+                        catchError(() => {
+                            this.isLoading = false;
+                            this.notificationService.error(ERROR_MESSAGES.loadGamesError);
+                            return EMPTY;
+                        }),
+                    ),
+                ),
+                takeUntil(this.destroySubject),
+            )
+            .subscribe();
 
         this.gameSocketService.gameListUpdated$.pipe(takeUntil(this.destroySubject)).subscribe(() => {
-            this.loadGames();
+            this.reloadGames();
         });
     }
 
-    loadGames(): void {
-        this.gameClientService.getAllGames().subscribe({
-            next: (games) => {
-                this.games = games;
-                this.isLoading = false;
-            },
-            error: () => {
-                this.isLoading = false;
-                alert(ERROR_MESSAGES.loadGamesError);
-            },
-        });
+    private reloadGames(): void {
+        this.isLoading = true;
+        this.reloadGamesSubject.next();
     }
 
-    deleteGame(id: string): void {
-        this.gameClientService.deleteGame(id).subscribe({
+    requestDeleteGame(game: Game): void {
+        this.pendingDeletionGame = game;
+    }
+
+    closeDeleteConfirmation(): void {
+        this.pendingDeletionGame = null;
+    }
+
+    confirmDeleteGame(): void {
+        const game = this.pendingDeletionGame;
+        if (!game) {
+            return;
+        }
+
+        this.gameClientService.deleteGame(game.id).subscribe({
             next: () => {
-                this.removeGameFromList(id);
+                this.removeGameFromList(game.id);
+                this.closeDeleteConfirmation();
             },
             error: (err: unknown) => {
                 if (this.isRecord(err) && err.status === HttpStatusCode.NotFound) {
-                    alert(ERROR_MESSAGES.gameAlreadyDeleted);
-                    this.removeGameFromList(id);
+                    this.notificationService.warning(ERROR_MESSAGES.gameAlreadyDeleted);
+                    this.removeGameFromList(game.id);
+                    this.closeDeleteConfirmation();
                     return;
                 }
-                alert(ERROR_MESSAGES.deleteGameError);
+                this.notificationService.error(ERROR_MESSAGES.deleteGameError);
             },
         });
     }
@@ -77,7 +98,7 @@ export class AdminPageComponent implements OnInit, OnDestroy {
     }
 
     private isRecord(value: unknown): value is Record<string, unknown> {
-        return typeof value === 'object' && value !== null;
+        return typeof value === 'object' && !!value;
     }
 
     toggleVisibility(game: Game): void {
@@ -87,7 +108,7 @@ export class AdminPageComponent implements OnInit, OnDestroy {
         this.gameClientService.updateGame(game.id, { isVisible: game.isVisible }).subscribe({
             error: () => {
                 game.isVisible = previousVisibility;
-                alert(ERROR_MESSAGES.toggleVisibilityError);
+                this.notificationService.error(ERROR_MESSAGES.toggleVisibilityError);
             },
         });
     }
@@ -104,6 +125,7 @@ export class AdminPageComponent implements OnInit, OnDestroy {
         this.closeCreateForm();
         this.router.navigate(['/edit-game-page'], {
             queryParams: { mode: data.mode, size: data.size },
+            replaceUrl: true,
         });
     }
 

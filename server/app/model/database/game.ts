@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
-import { TileId, ObjectId } from '@common/game';
+import { DoorState, GridSize, Mode, ObjectId, ShrinePart, TileId } from '@common/game';
 
 export type GameDocument = Games & Document;
 
@@ -10,6 +10,10 @@ export interface GameCell {
     column: number;
     tile: TileId;
     object?: ObjectId;
+    doorState?: DoorState;
+    shrineId?: string;
+    shrinePart?: ShrinePart;
+    shrineCooldownTurns?: number;
 }
 
 const GAME_CELL_SCHEMA = {
@@ -17,6 +21,10 @@ const GAME_CELL_SCHEMA = {
     column: { type: Number, required: true },
     tile: { type: String, required: true },
     object: { type: String, required: false },
+    doorState: { type: String, required: false },
+    shrineId: { type: String, required: false },
+    shrinePart: { type: String, required: false },
+    shrineCooldownTurns: { type: Number, required: false },
 };
 
 @Schema()
@@ -39,11 +47,11 @@ export class Games {
 
     @ApiProperty()
     @Prop({ required: true })
-    mode: string;
+    mode: Mode;
 
     @ApiProperty()
     @Prop({ required: true })
-    size: string;
+    size: GridSize;
 
     @ApiProperty()
     @Prop({ required: true })

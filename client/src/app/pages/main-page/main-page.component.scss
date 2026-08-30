@@ -1,50 +1,247 @@
+:host {
+    display: block;
+    height: 100%;
+    min-height: 100%;
+    font-family: 'Cinzel', 'Segoe UI', serif;
+    color: #f7e7b7;
+    background-color: #0f1118;
+}
+
 .logo {
-    margin-top: 9vh;
+    width: min(460px, 84vw);
+    aspect-ratio: 3 / 2;
+    margin: 0 auto;
+    background-image: url('../../../assets/images/mythica.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
 }
 
 .container {
-    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    background-image: url('../../../assets/images/main-page-bg.png');
+    background-size: cover;
+    background-position: center;
+    padding-top: 20px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    margin-top: 0;
+}
+
+.game-button {
+    width: 520px;
+    height: 110px;
+
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    border: none;
+    padding: 0;
+    margin: 0;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-button span {
+    color: #f7e7c1;
+    font-size: 22px;
+    font-family: 'Cinzel', serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+    pointer-events: none;
+}
+
+.create {
+    background-image: url('../../../assets/buttons/create.png');
+}
+
+.join {
+    background-image: url('../../../assets/buttons/join.png');
+}
+
+.admin {
+    background-image: url('../../../assets/buttons/admin.png');
+}
+
+.game-button:hover {
+    transform: scale(1.05);
 }
 
 .team-name-box {
     position: absolute;
-    bottom: 10vh;
-    right: 1rem;
-    border: 3px solid black;
-    padding: 0.625rem 3.75rem;
+    right: 28px;
+    bottom: 28px;
+    min-width: 240px;
+    padding: 16px 20px;
+    border-radius: 18px;
+    background: rgba(26, 24, 31, 0.72);
+    border: 1px solid rgba(247, 231, 183, 0.28);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(4px);
 }
 
-@media (max-width: 740px) {
+.team-name-box h2 {
+    margin: 0 0 10px;
+    color: #f7e7b7;
+    font-size: 1.1rem;
+    font-family: 'Cinzel', serif;
+}
+
+.team-name-box p {
+    margin: 0;
+    color: #f6edd1;
+    font-size: 0.98rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+    .container {
+        padding-top: 12px;
+    }
+
+    .logo {
+        width: min(380px, 80vw);
+    }
+
+    .menu {
+        gap: 20px;
+    }
+
+    .game-button {
+        width: min(430px, 82vw);
+        height: 92px;
+    }
+
+    .game-button span {
+        font-size: 19px;
+    }
+
     .team-name-box {
-        position: relative;
-        bottom: 0;
-        right: 0;
+        right: 16px;
+        left: 16px;
+        bottom: 16px;
+        min-width: 0;
+        padding: 14px 16px;
+    }
+
+    .team-name-box h2 {
+        font-size: 1rem;
+    }
+
+    .team-name-box p {
+        font-size: 0.92rem;
     }
 }
 
-.justified {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2vh;
+@media (max-width: 640px) {
+    .container {
+        padding-top: 8px;
+    }
+
+    .logo {
+        width: min(300px, 78vw);
+    }
+
+    .menu {
+        gap: 14px;
+    }
+
+    .game-button {
+        width: min(320px, 86vw);
+        height: 74px;
+    }
+
+    .game-button span {
+        font-size: 16px;
+    }
+
+    .team-name-box {
+        padding: 12px 14px;
+        border-radius: 14px;
+    }
+
+    .team-name-box h2 {
+        margin-bottom: 8px;
+        font-size: 0.92rem;
+    }
+
+    .team-name-box p {
+        font-size: 0.84rem;
+        line-height: 1.35;
+    }
 }
 
-.button {
-    margin-top: 10px;
-    text-align: center;
-    font-size: large;
-    padding: 0px 40px;
-    height: 80px;
+@media (max-height: 860px) {
+    .container {
+        padding-top: 10px;
+    }
+
+    .logo {
+        width: min(360px, 74vw);
+    }
+
+    .menu {
+        gap: 18px;
+    }
+
+    .game-button {
+        width: min(440px, 78vw);
+        height: 88px;
+    }
+
+    .game-button span {
+        font-size: 18px;
+    }
+
+    .team-name-box {
+        right: 18px;
+        bottom: 18px;
+        padding: 12px 16px;
+    }
 }
 
-.header-item {
-    justify-content: center;
-    text-align: center;
-}
+@media (max-height: 720px) {
+    .logo {
+        width: min(280px, 64vw);
+    }
 
-.server-message {
-    justify-content: center;
-    width: 20%;
-    min-width: min-content;
+    .menu {
+        gap: 12px;
+    }
+
+    .game-button {
+        width: min(360px, 72vw);
+        height: 68px;
+    }
+
+    .game-button span {
+        font-size: 15px;
+    }
+
+    .team-name-box {
+        padding: 10px 12px;
+    }
+
+    .team-name-box h2 {
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+    }
+
+    .team-name-box p {
+        font-size: 0.8rem;
+        line-height: 1.3;
+    }
 }

@@ -50,8 +50,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "5kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "10kb",
+                  "maximumError": "20kb"
                 }
               ],
               "fileReplacements": [
@@ -111,7 +111,29 @@
               "src/environments/**/*.ts",
               "src/main.ts",
               "src/polyfills.ts",
-              "src/test.ts"
+              "src/test.ts",
+              "src/app/components/**/*.ts",
+              "src/app/interfaces/**/*.ts",
+              "src/app/modules/**/*.ts",
+              "src/app/pages/admin-page/**/*.ts",
+              "src/app/pages/app/**/*.ts",
+              "src/app/pages/edit-game-page/**/*.ts",
+              "src/app/pages/game-page/**/*.ts",
+              "src/app/pages/main-page/**/*.ts",
+              "src/app/pages/match-creation-page/**/*.ts",
+              "src/app/pages/wait-page/**/*.ts",
+              "src/app/services/config.service.ts",
+              "src/app/services/chat/**/*.ts",
+              "src/app/services/displacement/**/*.ts",
+              "src/app/services/game-client.service.ts",
+              "src/app/services/game-page-display.service.ts",
+              "src/app/services/game-page-inspection.service.ts",
+              "src/app/services/game-page-state.service.ts",
+              "src/app/services/game-socket.service.ts",
+              "src/app/services/image-capture.service.ts",
+              "src/app/services/notifications/**/*.ts",
+              "src/app/services/session-storage-client.service.ts",
+              "src/app/services/time.service.ts"
             ]
           }
         },

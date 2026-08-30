@@ -1,26 +1,23 @@
 import { HttpClient, HttpStatusCode } from '@angular/common/http';
-import { Injectable, ElementRef, inject } from '@angular/core';
+import { ElementRef, inject, Injectable } from '@angular/core';
+import { NotificationService } from '@app/services/notifications/notification.service';
 import { Game } from '@common/game';
-import { ImageCaptureService } from './image-capture.service';
-import { environment } from 'src/environments/environment';
-import { map, switchMap, catchError, tap } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { ImageCaptureService } from './image-capture.service';
 
-// service de communication de jeu qui va faire les requêtes HTML
-// comme c'est un service, on veut qu'il soir injectable
-// va faire les requêtes vers les service du serveur qui gère lui aussi les jeux
+const GAME_NOT_FOUND_TEXT = 'Could not find game';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GameClientService {
-    // pour avoir adresse du serveur auquel les requêtes seront
-    // adressées
     private readonly baseUrl = environment.serverUrl;
-
     private readonly imageCaptureService = inject(ImageCaptureService);
+    private readonly notificationService = inject(NotificationService);
 
-    constructor(private http: HttpClient) {}
+    constructor(private readonly http: HttpClient) {}
 
     getAllGames(): Observable<Game[]> {
         return this.http.get<Game[]>(`${this.baseUrl}/game`);
@@ -57,48 +54,36 @@ export class GameClientService {
                 if (this.isNotFoundError(err)) {
                     return this.createGame(game).pipe(
                         tap(() => {
-                            alert('Le jeu original a été supprimé. Un nouveau jeu a été créé avec succès');
+                            this.notificationService.success('Le jeu original a ete supprime. Un nouveau jeu a ete cree avec succes');
                         }),
                     );
-                } else {
-                    return throwError(() => err);
                 }
+                return throwError(() => err);
             }),
         );
     }
 
-    // TODO: Regarder si le code est simplifiable (Not found devrait toujours)
-    // retourner 404
-    private isNotFoundError(err: unknown) {
-        return (
-            this.isRecord(err) &&
-            (err.status === HttpStatusCode.NotFound ||
-                (typeof err.error === 'string' && err.error.includes('Could not find game')) ||
-                (this.isRecord(err.error) && typeof err.error.message === 'string' && err.error.message.includes('Could not find game')))
-        );
+    private isNotFoundError(err: unknown): boolean {
+        if (!this.isRecord(err)) {
+            return false;
+        }
+
+        return err.status === HttpStatusCode.NotFound || this.hasGameNotFoundMessage(err.error);
+    }
+
+    private hasGameNotFoundMessage(payload: unknown): boolean {
+        return this.extractMessageStrings(payload).some((message) => message.includes(GAME_NOT_FOUND_TEXT));
     }
 
     private isRecord(value: unknown): value is Record<string, unknown> {
-        return typeof value === 'object' && value !== null;
+        return typeof value === 'object' && !!value;
     }
 
     extractErrors(err: unknown): string[] {
         if (this.isRecord(err)) {
-            const payload = err.error;
-            if (Array.isArray(payload)) {
-                return payload.filter((value): value is string => typeof value === 'string');
-            }
-            if (this.isRecord(payload)) {
-                const message = payload.message;
-                if (Array.isArray(message)) {
-                    return message.filter((value): value is string => typeof value === 'string');
-                }
-                if (typeof message === 'string' && message.trim()) {
-                    return [message];
-                }
-            }
-            if (typeof payload === 'string' && payload.trim()) {
-                return [payload];
+            const extractedErrors = this.extractMessageStrings(err.error).filter((message) => message.trim());
+            if (extractedErrors.length > 0) {
+                return extractedErrors;
             }
         }
         if (err instanceof Error && err.message.trim()) {
@@ -107,16 +92,27 @@ export class GameClientService {
         return ['Erreur inconnue'];
     }
 
+    private extractMessageStrings(payload: unknown): string[] {
+        if (typeof payload === 'string') {
+            return [payload];
+        }
+        if (Array.isArray(payload)) {
+            return payload.filter((value): value is string => typeof value === 'string');
+        }
+        if (!this.isRecord(payload)) {
+            return [];
+        }
+        return this.extractMessageStrings(payload.message);
+    }
+
     saveGame(game: Game, gridCapture: ElementRef<HTMLElement>): Observable<void> {
         return this.imageCaptureService.captureImage(gridCapture.nativeElement).pipe(
-            map((image) => ({ ...game, imageURL: image })),
-
+            map((image) => ({ ...game, imageURL: image, isVisible: false })),
             switchMap((gameWithImage): Observable<void> => {
                 if (game.id) {
                     return this.updateOrCreateGame(gameWithImage);
-                } else {
-                    return this.createGame(gameWithImage);
                 }
+                return this.createGame(gameWithImage);
             }),
         );
     }

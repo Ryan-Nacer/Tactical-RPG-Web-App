@@ -2,6 +2,7 @@
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
 module.exports = function (config) {
+    process.env.CHROME_BIN = process.env.CHROME_BIN || 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
     config.set({
         basePath: '',
         frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -41,6 +42,12 @@ module.exports = function (config) {
             ChromeHeadlessNoSandbox: {
                 base: 'ChromeHeadless',
                 flags: ['--no-sandbox'],
+            },
+            EdgeHeadless: {
+                base: 'ChromeHeadless',
+                browserName: 'Edge',
+                flags: ['--no-sandbox'],
+                chromeWebDriver: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
             },
         },
     });

@@ -1,74 +1,75 @@
 {
-    "title": "Titre du Jeu",
+    "title": "Mythica",
     "logo": "logo.jpg",
-    "teamNames": ["Bintou Ali", "Sarah Allouane", "Ryan Naceur", "Soeuchelle Michel", "Salematou Camara", "Yasmine Ghellache"],
-
+    "teamNames": [
+        "Bintou Ali",
+        "Sarah Allouane",
+        "Ryan Naceur",
+        "Soeuchelle Michel",
+        "Salematou Camara",
+        "Yasmine Ghellache"
+    ],
     "toolDescriptionMap": {
-        "base": "",
-        "wall": "",
-        "door": "",
-        "water": "",
-        "ice": "",
-        "start": "",
-        "flag": "",
-        "heal": "",
-        "combat": ""
+        "base": "Tuile de terrain\n Coût de déplacement: 1",
+        "wall": "Tuile de Mur\n Coût de déplacement: 2",
+        "door": "Tuile de Porte\n Coût de déplacement: 1",
+        "water": "Tuile d'Eau\n Coût de déplacement: 3",
+        "ice": "Tuile de Glace\n Coût de déplacement: 1",
+        "start": "Point de départ\nDétermine un point de départ possible",
+        "flag": "Drapeau\nDétermine la position possible des drapeaux",
+        "heal": "Sanctuaire de soin\nÀ l'utilisation, permet de regagner 2 HP\nPrends 2x2 tuiles",
+        "combat": "Sanctuaire de combat\nÀ l'utilisation, ajoute temporairement 1 point à\nl'attribut attaque et défense\nPrends 2x2 tuiles"
     },
-
     "playerAvatars": [
         {
             "imageUrl": "barbie.png",
             "avatarName": "Barbie"
         },
-
         {
-            "imageUrl": "raquelle.png",
-            "avatarName": "Raquelle"
+            "imageUrl": "alex.png",
+            "avatarName": "Alex"
         },
-
         {
             "imageUrl": "nikki.png",
             "avatarName": "Nikki"
         },
-
         {
-            "imageUrl": "teresa.png",
-            "avatarName": "Teresa"
+            "imageUrl": "eric.png",
+            "avatarName": "Eric"
         },
-
         {
             "imageUrl": "ken.png",
             "avatarName": "Ken"
         },
-
         {
             "imageUrl": "blissa.png",
             "avatarName": "Blissa"
         },
-
         {
             "imageUrl": "ryan.png",
             "avatarName": "Ryan"
         },
-
         {
-            "imageUrl": "skipper.png",
-            "avatarName": "Skipper"
+            "imageUrl": "prince.png",
+            "avatarName": "Prince"
         },
-
         {
-            "imageUrl": "stacie.png",
-            "avatarName": "Stacie"
+            "imageUrl": "valerya.png",
+            "avatarName": "Valerya"
         },
-
+        {
+            "imageUrl": "shaman.png",
+            "avatarName": "Shaman"
+        },
         {
             "imageUrl": "taffy.png",
             "avatarName": "Taffy"
         },
-
         {
             "imageUrl": "tawny.png",
             "avatarName": "Tawny"
         }
-    ]
+    ],
+    "gameDescriptionLimit": 150,
+    "gameNameLimit": 40
 }

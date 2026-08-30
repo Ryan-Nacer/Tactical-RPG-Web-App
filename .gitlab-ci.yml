@@ -1,4 +1,4 @@
-image: registry.gitlab.com/nikolayradoev/docker-images/chrome-mongo-node:20261
+image: node:22-bookworm
 
 cache:
     key: '${CI_COMMIT_REF_SLUG}-client'
@@ -89,6 +89,10 @@ test:client:
     stage: test
     needs: ['install:client']
     <<: *only-client
+    before_script:
+        - apt-get update
+        - apt-get install -y --no-install-recommends chromium xvfb
+        - export CHROME_BIN=/usr/bin/chromium
     script:
         - Xvfb :99 -ac -screen 0 1920x1080x24 &
         - cd client

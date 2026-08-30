@@ -4,14 +4,28 @@ import { Games } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
+import { GridSize, Mode } from '@common/game';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+/**
+ * Strategie :
+ * - tester GameController comme adaptateur HTTP au-dessus de GameService
+ * - verifier que les reponses nominales du service sont relayees telles quelles
+ * - verifier que les erreurs du service sont converties vers les bons statuts HTTP
+ *
+ * Cas limites cibles :
+ * - erreurs generiques sur les routes de lecture, qui doivent devenir des INTERNAL_SERVER_ERROR
+ * - HttpException deja formatees par le service, qui doivent etre preservees
+ * - erreurs non typées, qui doivent devenir UNKNOWN_ERROR a la suppression
+ *
+ * Ces cas sont critiques parce que le controleur constitue le contrat observe par le client.
+ */
 describe('GameController', () => {
     const gameId = 'game-1';
     const gameName = 'Test Game';
-    const gameSize = '10';
-    const gameMode = 'CLASSIC';
+    const gameSize = GridSize.Small;
+    const gameMode = Mode.Classic;
     const gameDescription = 'Description';
 
     let controller: GameController;
@@ -61,58 +75,55 @@ describe('GameController', () => {
         gameService = module.get(GameService);
     });
 
+    const captureHttpException = async (action: () => Promise<unknown>): Promise<HttpException> => {
+        try {
+            await action();
+            throw new Error('Expected HttpException to be thrown');
+        } catch (error) {
+            expect(error).toBeInstanceOf(HttpException);
+            return error as HttpException;
+        }
+    };
+
     it('should be defined', () => {
         expect(controller).toBeDefined();
     });
 
-    it('allGames should return games', async () => {
+    it.each([
+        {
+            name: 'allGames',
+            serviceCall: () => gameService.getAllGames,
+            action: () => controller.allGames(),
+        },
+        {
+            name: 'visibleGames',
+            serviceCall: () => gameService.getVisibleGames,
+            action: () => controller.visibleGames(),
+        },
+    ])('$name should return games', async ({ serviceCall, action }) => {
         const games = [mockGame];
-        gameService.getAllGames.mockResolvedValue(games);
+        serviceCall().mockResolvedValue(games);
 
-        const result = await controller.allGames();
-
-        expect(result).toBe(games);
+        await expect(action()).resolves.toBe(games);
     });
 
-    it('allGames should throw NOT_FOUND when service fails', async () => {
-        let caught: HttpException | undefined;
-        gameService.getAllGames.mockRejectedValue(new Error('Database error'));
+    it.each([
+        {
+            name: 'allGames',
+            serviceCall: () => gameService.getAllGames,
+            action: () => controller.allGames(),
+        },
+        {
+            name: 'visibleGames',
+            serviceCall: () => gameService.getVisibleGames,
+            action: () => controller.visibleGames(),
+        },
+    ])('$name should throw INTERNAL_SERVER_ERROR when service fails', async ({ serviceCall, action }) => {
+        serviceCall().mockRejectedValue(new Error('Database error'));
 
-        try {
-            await controller.allGames();
-        } catch (error) {
-            if (error instanceof HttpException) {
-                caught = error;
-            }
-        }
+        const caught = await captureHttpException(action);
 
-        expect(caught).toBeDefined();
-        expect(caught?.getStatus()).toBe(HttpStatus.NOT_FOUND);
-    });
-
-    it('visibleGames should return games', async () => {
-        const games = [mockGame];
-        gameService.getVisibleGames.mockResolvedValue(games);
-
-        const result = await controller.visibleGames();
-
-        expect(result).toBe(games);
-    });
-
-    it('visibleGames should throw NOT_FOUND when service fails', async () => {
-        let caught: HttpException | undefined;
-        gameService.getVisibleGames.mockRejectedValue(new Error('Database error'));
-
-        try {
-            await controller.visibleGames();
-        } catch (error) {
-            if (error instanceof HttpException) {
-                caught = error;
-            }
-        }
-
-        expect(caught).toBeDefined();
-        expect(caught?.getStatus()).toBe(HttpStatus.NOT_FOUND);
+        expect(caught.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
     it('addGame should return created message and id', async () => {
@@ -130,20 +141,12 @@ describe('GameController', () => {
         await expect(controller.addGame(createDto)).rejects.toBe(httpError);
     });
 
-    it('addGame should throw BAD_REQUEST when service fails', async () => {
-        let caught: HttpException | undefined;
+    it('addGame should throw INTERNAL_SERVER_ERROR when service fails', async () => {
         gameService.addGame.mockRejectedValue(new Error('Insert failed'));
 
-        try {
-            await controller.addGame(createDto);
-        } catch (error) {
-            if (error instanceof HttpException) {
-                caught = error;
-            }
-        }
+        const caught = await captureHttpException(() => controller.addGame(createDto));
 
-        expect(caught).toBeDefined();
-        expect(caught?.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+        expect(caught.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
     it('getGameById should return a game', async () => {
@@ -154,20 +157,20 @@ describe('GameController', () => {
         expect(result).toBe(mockGame);
     });
 
-    it('getGameById should throw NOT_FOUND when service fails', async () => {
-        let caught: HttpException | undefined;
-        gameService.getGame.mockRejectedValue(new Error('Not found'));
+    it('getGameById should throw NOT_FOUND when the game is missing', async () => {
+        gameService.getGame.mockResolvedValue(null as unknown as Games);
 
-        try {
-            await controller.getGameById(gameId);
-        } catch (error) {
-            if (error instanceof HttpException) {
-                caught = error;
-            }
-        }
+        const caught = await captureHttpException(() => controller.getGameById(gameId));
 
-        expect(caught).toBeDefined();
-        expect(caught?.getStatus()).toBe(HttpStatus.NOT_FOUND);
+        expect(caught.getStatus()).toBe(HttpStatus.NOT_FOUND);
+    });
+
+    it('getGameById should throw INTERNAL_SERVER_ERROR when service fails', async () => {
+        gameService.getGame.mockRejectedValue(new Error('Database error'));
+
+        const caught = await captureHttpException(() => controller.getGameById(gameId));
+
+        expect(caught.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
     it('updateGame should call the service', async () => {
@@ -187,21 +190,13 @@ describe('GameController', () => {
         await expect(controller.updateGame(gameId, updateDto)).rejects.toBe(httpError);
     });
 
-    it('updateGame should throw NOT_FOUND when service fails', async () => {
-        let caught: HttpException | undefined;
+    it('updateGame should throw INTERNAL_SERVER_ERROR when service fails', async () => {
         const updateDto: UpdateGameDto = { name: 'Updated Game' };
         gameService.updateGame.mockRejectedValue(new Error('Update failed'));
 
-        try {
-            await controller.updateGame(gameId, updateDto);
-        } catch (error) {
-            if (error instanceof HttpException) {
-                caught = error;
-            }
-        }
+        const caught = await captureHttpException(() => controller.updateGame(gameId, updateDto));
 
-        expect(caught).toBeDefined();
-        expect(caught?.getStatus()).toBe(HttpStatus.NOT_FOUND);
+        expect(caught.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
     it('deleteGame should call the service', async () => {
@@ -212,20 +207,16 @@ describe('GameController', () => {
         expect(gameService.deleteGame).toHaveBeenCalledWith(gameId);
     });
 
-    it('deleteGame should throw NOT_FOUND with unknown error message', async () => {
-        let caught: HttpException | undefined;
+    it('deleteGame should throw INTERNAL_SERVER_ERROR with unknown error message', async () => {
         gameService.deleteGame.mockRejectedValue('Unknown');
 
-        try {
-            await controller.deleteGame(gameId);
-        } catch (error) {
-            if (error instanceof HttpException) {
-                caught = error;
-            }
-        }
+        const caught = await captureHttpException(() => controller.deleteGame(gameId));
 
-        expect(caught).toBeDefined();
-        expect(caught?.getStatus()).toBe(HttpStatus.NOT_FOUND);
-        expect(caught?.getResponse()).toBe(UNKNOWN_ERROR);
+        expect(caught.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+        expect(caught.getResponse()).toEqual({
+            message: UNKNOWN_ERROR,
+            error: 'Internal Server Error',
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        });
     });
 });

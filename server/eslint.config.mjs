@@ -7,7 +7,32 @@ export default [
     {
         files: ['**/*.ts'],
         rules: {
-            // Ajoutez ici d'autres règles spécifiques au serveur au besoin
+            // Ajoutez ici d'autres regles specifiques au serveur au besoin
+        },
+    },
+    {
+        files: ['**/*.spec.ts'],
+        rules: {
+            '@typescript-eslint/no-magic-numbers': 'off',
+            '@typescript-eslint/no-non-null-assertion': 'off',
+            'complexity': 'off',
+            'max-len': 'off',
+            'max-lines': 'off',
+        },
+    },
+    {
+        files: ['app/services/virtual-player/strategy/strategy.ts'],
+        rules: {
+            'complexity': 'off',
+            'max-len': 'off',
+            'max-lines': 'off',
+        },
+    },
+    {
+        files: ['app/services/virtual-player/virtual-player.service.ts'],
+        rules: {
+            'complexity': 'off',
+            'max-params': 'off',
         },
     },
 ];

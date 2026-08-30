@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { GameCellDto } from './game-cell.dto';
 import { GAME_NAME_MAX_LENGTH } from './game.dto.constants';
+import { GridSize, Mode } from '@common/game';
 
 export class UpdateGameDto {
     @ApiProperty({ maxLength: GAME_NAME_MAX_LENGTH })
@@ -13,8 +14,8 @@ export class UpdateGameDto {
 
     @ApiProperty()
     @IsOptional()
-    @IsString()
-    size?: string;
+    @IsEnum(GridSize)
+    size?: GridSize;
 
     @ApiProperty()
     @IsOptional()
@@ -38,8 +39,8 @@ export class UpdateGameDto {
 
     @ApiProperty()
     @IsOptional()
-    @IsString()
-    mode?: string;
+    @IsEnum(Mode)
+    mode?: Mode;
 
     @ApiProperty({ type: [GameCellDto], required: false })
     @IsOptional()

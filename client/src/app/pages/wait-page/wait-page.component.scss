@@ -1,4 +1,30 @@
+@use './wait-page.component.header' as waitHeader;
+@use './wait-page.component.panels' as waitPanels;
+@use './wait-page.component.responsive' as waitResponsive;
+
+:host {
+    --gold: #d4af37;
+    --bronze: #4e3b31;
+    --paper-light: rgba(239, 229, 211, 0.98);
+    --paper-dark: rgba(228, 214, 192, 0.97);
+
+    display: block;
+    height: 100%;
+    background:
+        radial-gradient(circle at 14% 14%, rgba(212, 175, 55, 0.18), transparent 36%),
+        radial-gradient(circle at 82% 20%, rgba(26, 58, 95, 0.22), transparent 44%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0 2px, rgba(0, 0, 0, 0.04) 2px 5px),
+        linear-gradient(155deg, rgba(34, 31, 27, 0.48), rgba(30, 30, 30, 0.56)),
+        url('../../../assets/images/match-creation-bg.png') center / cover no-repeat fixed;
+    box-sizing: border-box;
+}
+
 .wait-page {
-    min-height: 100vh;
-    width: 100%;
+    height: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
 }

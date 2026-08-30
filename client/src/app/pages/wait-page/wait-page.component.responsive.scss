@@ -1,0 +1,183 @@
+@media (max-width: 1180px) {
+    .wait-main {
+        grid-template-columns: minmax(320px, 0.92fr) minmax(0, 1.08fr);
+        gap: 12px;
+        padding: 16px 18px;
+    }
+
+    .players-panel,
+    .chat-panel {
+        padding: 10px;
+    }
+
+    .players-header {
+        gap: 12px;
+    }
+
+    .players-meta {
+        margin-right: 8px;
+    }
+
+    .players-list {
+        gap: 8px;
+        padding-right: 8px;
+    }
+
+    .players-info {
+        padding: 10px 12px;
+        gap: 12px;
+    }
+
+    .player-name {
+        font-size: 1rem;
+    }
+
+    .player-trailing {
+        width: 120px;
+        gap: 8px;
+    }
+
+    .kick-button {
+        padding: 7px 12px;
+    }
+}
+
+@media (max-width: 940px) {
+    .wait-main {
+        grid-template-columns: 1fr;
+    }
+
+    .players-panel,
+    .chat-panel {
+        height: auto;
+    }
+
+    .players-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .players-meta {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .players-list {
+        padding-right: 6px;
+    }
+
+    .players-info {
+        display: grid;
+        grid-template-columns: 60px minmax(0, 1fr);
+        grid-template-areas:
+            'avatar name'
+            'avatar trailing';
+        align-items: center;
+        gap: 8px 12px;
+        padding: 10px;
+    }
+
+    .player-avatar {
+        grid-area: avatar;
+        width: 60px;
+        height: 60px;
+        align-self: start;
+    }
+
+    .player-name {
+        grid-area: name;
+        font-size: 0.98rem;
+        align-self: end;
+    }
+
+    .player-trailing {
+        grid-area: trailing;
+        width: auto;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .organizer-badge,
+    .jv-profile-badge {
+        max-width: 100%;
+        white-space: normal;
+    }
+}
+
+@media (max-width: 720px) {
+    .wait-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px 14px 13px 18px;
+    }
+
+    .header-left {
+        padding-left: 10px;
+    }
+
+    .header-actions {
+        justify-content: stretch;
+        border-left: none;
+        padding-left: 0;
+        margin-top: 4px;
+    }
+
+    .header-actions button {
+        width: 100%;
+    }
+
+    .player-trailing {
+        width: auto;
+        gap: 6px;
+    }
+
+    .players-info {
+        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 8px 10px;
+        padding: 8px 10px;
+    }
+
+    .player-avatar {
+        width: 52px;
+        height: 52px;
+        border-width: 2px;
+    }
+
+    .player-name {
+        font-size: 0.92rem;
+    }
+
+    .virtual-player-controls,
+    .virtual-player-options {
+        width: 100%;
+    }
+
+    .virtual-player-options {
+        gap: 8px;
+    }
+
+    .virtual-option-button {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .organizer-badge,
+    .jv-profile-badge {
+        font-size: 0.68rem;
+        padding: 4px 8px;
+    }
+
+    .kick-button {
+        padding: 6px 10px;
+        font-size: 0.82rem;
+    }
+
+    .players-header h2 {
+        font-size: 1rem;
+    }
+
+    .count,
+    .players-header .room-status {
+        font-size: 0.72rem;
+    }
+}

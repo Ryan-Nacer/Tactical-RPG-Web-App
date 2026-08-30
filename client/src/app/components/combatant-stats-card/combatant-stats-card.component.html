@@ -1,0 +1,59 @@
+<section class="combatant-column">
+    <img class="combatant-avatar" [src]="avatarUrl || defaultAvatarUrl" [alt]="avatarAlt" />
+    <h3>{{ name }}</h3>
+    <dl>
+        <div>
+            <dt>Points de vie</dt>
+            <dd>
+                <span class="health-value">{{ health }}/{{ maxHealth }}</span>
+                @if (damageTaken > 0) {
+                <span class="damage-pop">-{{ damageTaken }}</span>
+                }
+            </dd>
+        </div>
+        <div>
+            <dt>Base attaque</dt>
+            <dd>{{ attackBase }}</dd>
+        </div>
+        <div>
+            <dt>Base defense</dt>
+            <dd>{{ defenseBase }}</dd>
+        </div>
+        <div>
+            <dt>Dé attaque</dt>
+            <dd>{{ attackDiceResult }}</dd>
+        </div>
+        <div>
+            <dt>Dé defense</dt>
+            <dd>{{ defenseDiceResult }}</dd>
+        </div>
+        <div>
+            <dt>Bonus posture attaque</dt>
+            <dd>{{ attackPostureBonus }}</dd>
+        </div>
+        <div>
+            <dt>Bonus posture defense</dt>
+            <dd>{{ defensePostureBonus }}</dd>
+        </div>
+        <div>
+            <dt>Pénalité attaque</dt>
+            <dd>{{ formatPenalty(attackPenalty) }}</dd>
+        </div>
+        <div>
+            <dt>Pénalité defense</dt>
+            <dd>{{ formatPenalty(defensePenalty) }}</dd>
+        </div>
+        <div>
+            <dt>Total attaque</dt>
+            <dd>{{ attackTotal }}</dd>
+        </div>
+        <div>
+            <dt>Total défense</dt>
+            <dd>{{ defenseTotal }}</dd>
+        </div>
+        <div>
+            <dt>Dégâts infligés</dt>
+            <dd>{{ damageDealt }}</dd>
+        </div>
+    </dl>
+</section>

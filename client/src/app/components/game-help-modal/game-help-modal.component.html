@@ -1,0 +1,64 @@
+@if (isOpen) {
+<div class="help-overlay" role="dialog" aria-modal="true" aria-label="Aide de jeu" (click)="requestClose()">
+    <div class="help-modal" (click)="$event.stopPropagation()">
+        <div class="help-modal-header">
+            <div>
+                <p class="help-modal-kicker">Aide</p>
+                <h2>Comment jouer</h2>
+            </div>
+            <button type="button" class="help-close-button" (click)="requestClose()">Fermer</button>
+        </div>
+
+        <div class="help-modal-body">
+            <section class="help-section">
+                <h3>🎯 Comment Gagner</h3>
+                <ul>
+                    <li><strong>Mode classique</strong> : le premier joueur a gagner <strong>3 combats</strong> remporte la partie.</li>
+                    <li><strong>Capture du drapeau (CTF)</strong> : vous gagnez en ramenant le <strong>drapeau</strong> a votre <strong>point d’apparition</strong>.</li>
+                    <li>En <strong>CTF</strong>, quand un joueur reussit, <strong>toute l’equipe gagne</strong>.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>🎮 Controles</h3>
+                <ul>
+                    <li><strong>Deplacement</strong> : utilisez <strong>W, A, S, D</strong>.</li>
+                    <li><strong>Clic gauche</strong> : choisissez une cible ou interagissez avec une case.</li>
+                    <li><strong>Clic droit</strong> : inspectez une case ou un joueur.</li>
+                    <li>Utilisez d’abord le <strong>bouton Action</strong>, puis cliquez sur une cible valide.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>🧭 Bases du Jeu</h3>
+                <ul>
+                    <li>A chaque tour, vous avez des <strong>points de mouvement</strong> et <strong>une action</strong>.</li>
+                    <li>Vous vous deplacez sur des <strong>cases adjacentes seulement</strong>, <strong>sans diagonales</strong>.</li>
+                    <li>Selon le terrain, certaines cases coutent plus ou moins de mouvement.</li>
+                    <li>Vous pouvez <strong>attaquer</strong>, utiliser des <strong>portes</strong>, activer des <strong>sanctuaires</strong> ou interagir avec le <strong>drapeau</strong>.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>🚩 Capture du Drapeau (Regles CTF)</h3>
+                <ul>
+                    <li>Marchez sur le drapeau pour le <strong>ramasser</strong>.</li>
+                    <li>Vous pouvez <strong>transferer</strong> le drapeau a un allie proche ou envoyer une <strong>demande</strong>.</li>
+                    <li>Votre coequipier doit <strong>accepter</strong> le transfert pour qu’il se fasse.</li>
+                    <li>Vous <strong>ne pouvez pas attaquer vos coequipiers</strong> en CTF.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>⚠️ Regles Importantes</h3>
+                <ul>
+                    <li>Le <strong>chrono</strong> fait avancer le tour. Agissez avant la fin du temps.</li>
+                    <li>Si un joueur <strong>quitte</strong>, son personnage abandonne la partie.</li>
+                    <li>Vous avez <strong>une seule action par tour</strong>, choisissez-la bien.</li>
+                    <li>Certaines interactions peuvent <strong>bloquer temporairement le mouvement</strong> jusqu’a votre reponse ou leur fermeture.</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+</div>
+}

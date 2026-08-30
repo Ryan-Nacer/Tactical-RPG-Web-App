@@ -1,0 +1,35 @@
+/* tool assets */
+.toolIcon.base {
+    background-image: url('../../../assets/tiles/grass.png');
+}
+
+.toolIcon.wall {
+    background-image: url('../../../assets/tiles/wall.png');
+}
+
+.toolIcon.water {
+    background-image: url('../../../assets/tiles/water.png');
+}
+
+.toolIcon.ice {
+    background-image: url('../../../assets/tiles/ice.png');
+}
+
+.toolIcon.door {
+    background-image: url('../../../assets/tiles/door.png');
+    background-size: 170%;
+    background-position: center 45%;
+    background-repeat: no-repeat;
+}
+
+.toolIcon.start {
+    background-image: url('../../../assets/objects/depart.png');
+}
+
+.toolIcon.heal {
+    background-image: url('../../../assets/objects/health.png');
+}
+
+.toolIcon.combat {
+    background-image: url('../../../assets/objects/combat.png');
+}

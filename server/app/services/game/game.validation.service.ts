@@ -3,21 +3,21 @@ import { GameCellDto } from '@app/model/dto/game/game-cell.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { TileId, ObjectId, Mode as GameMode, isTerrainTile } from '@common/game';
-
+import { CARDINAL_NEIGHBOR_OFFSETS, GridSize, Mode as GameMode, ObjectId, TileId, isTerrainTile, ShrinePart } from '@common/game';
 import { VALIDATION_MESSAGES } from './game.validation.messages';
-
-enum GridSize {
-    Small = 10,
-    Medium = 15,
-    Large = 20,
-}
 
 enum StartPoints {
     Small = 2,
     Medium = 4,
     Large = 6,
 }
+
+const SHRINE_LIMIT_BY_GRID_SIZE = {
+    [GridSize.Small]: 1,
+    [GridSize.Medium]: 2,
+    [GridSize.Large]: 4,
+} as const;
+const SHRINE_CELL_COUNT = 4;
 
 @Injectable()
 export class GameValidationService {
@@ -36,27 +36,24 @@ export class GameValidationService {
     }
 
     async checkNameUniqueForCreate(name: string | undefined): Promise<void> {
-        if (!name || !name.trim()) {
-            return;
-        }
-        const nameWanted = name.trim();
-        const nameRegex = this.buildNameRegex(nameWanted);
-        const game = await this.gameModel.findOne({ name: { $regex: nameRegex } });
-
-        if (game !== null) {
-            throw new BadRequestException(VALIDATION_MESSAGES.name.alreadyUsed);
-        }
+        await this.checkNameUnique(name);
     }
 
     async checkNameUniqueForUpdate(gameId: string, name: string | undefined): Promise<void> {
+        await this.checkNameUnique(name, gameId);
+    }
+
+    private async checkNameUnique(name: string | undefined, excludedGameId?: string): Promise<void> {
         if (!name || !name.trim()) {
             return;
         }
+
         const nameWanted = name.trim();
         const nameRegex = this.buildNameRegex(nameWanted);
-        const game = await this.gameModel.findOne({ name: { $regex: nameRegex }, id: { $ne: gameId } });
+        const query = excludedGameId === undefined ? { name: { $regex: nameRegex } } : { name: { $regex: nameRegex }, id: { $ne: excludedGameId } };
+        const game = await this.gameModel.findOne(query);
 
-        if (game !== null) {
+        if (game) {
             throw new BadRequestException(VALIDATION_MESSAGES.name.alreadyUsed);
         }
     }
@@ -66,12 +63,31 @@ export class GameValidationService {
         return new RegExp(`^\\s*${escaped}\\s*$`, 'i');
     }
 
-    private tileAtPosition(cells: GameCellDto[], row: number, column: number): TileId {
+    private tileAtPosition(cells: GameCellDto[], row: number, column: number): TileId | undefined {
         const cell = cells.find((t) => t.row === row && t.column === column);
         return cell ? (cell.tile as TileId) : undefined;
     }
 
+    private cellAtPosition(cells: GameCellDto[], row: number, column: number): GameCellDto | undefined {
+        return cells.find((cell) => cell.row === row && cell.column === column);
+    }
+
+    private isBorderPosition(cells: GameCellDto[], row: number, column: number): boolean {
+        const rows = cells.map((cell) => cell.row);
+        const columns = cells.map((cell) => cell.column);
+        const minRow = Math.min(...rows);
+        const maxRow = Math.max(...rows);
+        const minColumn = Math.min(...columns);
+        const maxColumn = Math.max(...columns);
+
+        return row === minRow || row === maxRow || column === minColumn || column === maxColumn;
+    }
+
     private isDoorValid(cells: GameCellDto[], row: number, column: number): boolean {
+        if (this.isBorderPosition(cells, row, column)) {
+            return false;
+        }
+
         const left = this.tileAtPosition(cells, row, column - 1);
         const right = this.tileAtPosition(cells, row, column + 1);
         const up = this.tileAtPosition(cells, row - 1, column);
@@ -106,18 +122,47 @@ export class GameValidationService {
     }
 
     checkStartPoints(cells: GameCellDto[], sizeValue: string | number | undefined): void {
-        const size = typeof sizeValue === 'number' ? sizeValue : Number(sizeValue);
+        const size = this.resolveGridSize(sizeValue);
         let required: number | null = null;
         if (size === GridSize.Small) required = StartPoints.Small;
         if (size === GridSize.Medium) required = StartPoints.Medium;
         if (size === GridSize.Large) required = StartPoints.Large;
-        if (required === null || Number.isNaN(size)) {
-            throw new BadRequestException(VALIDATION_MESSAGES.grid.invalidSize);
-        }
 
         const placed = cells.filter((c) => c.object === ObjectId.Start).length;
         if (placed !== required) {
             throw new BadRequestException(`${VALIDATION_MESSAGES.grid.invalidStartPoints}: ${placed}/${required}.`);
+        }
+    }
+
+    checkShrines(cells: GameCellDto[], sizeValue: string | number | undefined): void {
+        const size = this.resolveGridSize(sizeValue);
+        const shrineGroups = new Map<string, GameCellDto[]>();
+
+        for (const cell of cells) {
+            const hasShrineMetadata = cell.shrineId !== undefined || cell.shrinePart !== undefined || cell.shrineCooldownTurns !== undefined;
+            if (!this.isShrineObject(cell.object)) {
+                if (hasShrineMetadata) {
+                    throw new BadRequestException(VALIDATION_MESSAGES.shrine.invalidPlacement);
+                }
+                continue;
+            }
+
+            if (!cell.shrineId || !cell.shrinePart || !isTerrainTile(cell.tile)) {
+                throw new BadRequestException(VALIDATION_MESSAGES.shrine.invalidPlacement);
+            }
+
+            const shrineCells = shrineGroups.get(cell.shrineId) ?? [];
+            shrineCells.push(cell);
+            shrineGroups.set(cell.shrineId, shrineCells);
+        }
+
+        const shrineLimit = SHRINE_LIMIT_BY_GRID_SIZE[size];
+        if (shrineGroups.size > shrineLimit) {
+            throw new BadRequestException(`${VALIDATION_MESSAGES.shrine.invalidLimit}: ${shrineGroups.size}/${shrineLimit}.`);
+        }
+
+        for (const shrineCells of shrineGroups.values()) {
+            this.validateShrineGroup(shrineCells);
         }
     }
 
@@ -135,50 +180,141 @@ export class GameValidationService {
     }
 
     hasInaccessibleTiles(cells: GameCellDto[]): void {
-        const nonWallTileCount = cells.filter((c) => c.tile !== TileId.Wall).length;
+        const traversableTileCount = cells.filter((cell) => this.isTraversableForAccessibility(cell)).length;
         const startsList = cells.filter((c) => c.object === ObjectId.Start);
         if (startsList.length === 0) {
             return;
         }
 
+        const shrineGroups = this.groupShrineCells(cells);
         for (const start of startsList) {
-            const visited: string[] = [];
-            const queue: string[] = [];
-            const startTile = `${start.row},${start.column}`;
-            visited.push(startTile);
-            queue.push(startTile);
-            while (queue.length > 0) {
-                const currentTile = queue.shift();
-                if (currentTile === undefined) {
-                    continue;
-                }
-                const parts = currentTile.split(',');
-                const row = Number(parts[0]);
-                const col = Number(parts[1]);
-                const neighbors: number[][] = [
-                    [row - 1, col],
-                    [row + 1, col],
-                    [row, col - 1],
-                    [row, col + 1],
-                ];
-                for (const n of neighbors) {
-                    const tile = this.tileAtPosition(cells, n[0], n[1]);
-                    if (tile === undefined) {
-                        continue;
-                    }
-                    if (tile === TileId.Wall) {
-                        continue;
-                    }
-                    if (visited.includes(`${n[0]},${n[1]}`)) {
-                        continue;
-                    }
-                    visited.push(`${n[0]},${n[1]}`);
-                    queue.push(`${n[0]},${n[1]}`);
-                }
-            }
-            if (visited.length !== nonWallTileCount) {
+            const visited = this.computeAccessibleTileKeys(cells, start);
+            if (visited.size !== traversableTileCount) {
                 throw new BadRequestException(VALIDATION_MESSAGES.terrain.inaccessible);
             }
+            if (!this.areShrinesAccessible(shrineGroups, visited)) {
+                throw new BadRequestException(VALIDATION_MESSAGES.shrine.inaccessible);
+            }
+        }
+    }
+
+    private computeAccessibleTileKeys(cells: GameCellDto[], start: GameCellDto): Set<string> {
+        const visited = new Set<string>();
+        const queue: string[] = [];
+        const startTile = `${start.row},${start.column}`;
+        visited.add(startTile);
+        queue.push(startTile);
+        while (queue.length > 0) {
+            const currentTile = queue.shift();
+            if (currentTile === undefined) {
+                continue;
+            }
+            const parts = currentTile.split(',');
+            const row = Number(parts[0]);
+            const col = Number(parts[1]);
+            const neighbors = CARDINAL_NEIGHBOR_OFFSETS.map((offset) => [row + offset.row, col + offset.column]);
+            for (const n of neighbors) {
+                const cell = this.cellAtPosition(cells, n[0], n[1]);
+                if (!this.isTraversableForAccessibility(cell)) {
+                    continue;
+                }
+                const neighborKey = `${n[0]},${n[1]}`;
+                if (visited.has(neighborKey)) {
+                    continue;
+                }
+                visited.add(neighborKey);
+                queue.push(neighborKey);
+            }
+        }
+        return visited;
+    }
+
+    private isTraversableForAccessibility(cell: GameCellDto | undefined): boolean {
+        return !!cell && cell.tile !== TileId.Wall && !this.isShrineObject(cell.object);
+    }
+
+    private groupShrineCells(cells: GameCellDto[]): Map<string, GameCellDto[]> {
+        const shrineGroups = new Map<string, GameCellDto[]>();
+
+        for (const cell of cells) {
+            if (!this.isShrineObject(cell.object)) {
+                continue;
+            }
+
+            const shrineKey = cell.shrineId ?? `legacy-${cell.row}-${cell.column}`;
+            const shrineCells = shrineGroups.get(shrineKey) ?? [];
+            shrineCells.push(cell);
+            shrineGroups.set(shrineKey, shrineCells);
+        }
+
+        return shrineGroups;
+    }
+
+    private areShrinesAccessible(shrineGroups: Map<string, GameCellDto[]>, visited: Set<string>): boolean {
+        for (const shrineCells of shrineGroups.values()) {
+            if (!this.hasReachableAdjacentCell(shrineCells, visited)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private hasReachableAdjacentCell(shrineCells: GameCellDto[], visited: Set<string>): boolean {
+        const shrineKeys = new Set(shrineCells.map((cell) => `${cell.row},${cell.column}`));
+
+        for (const cell of shrineCells) {
+            const adjacentPositions = [
+                `${cell.row - 1},${cell.column}`,
+                `${cell.row + 1},${cell.column}`,
+                `${cell.row},${cell.column - 1}`,
+                `${cell.row},${cell.column + 1}`,
+            ];
+
+            if (adjacentPositions.some((position) => !shrineKeys.has(position) && visited.has(position))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private resolveGridSize(sizeValue: string | number | undefined): GridSize {
+        const size = typeof sizeValue === 'number' ? sizeValue : Number(sizeValue);
+        if (size !== GridSize.Small && size !== GridSize.Medium && size !== GridSize.Large) {
+            throw new BadRequestException(VALIDATION_MESSAGES.grid.invalidSize);
+        }
+        return size;
+    }
+
+    private isShrineObject(object?: ObjectId): object is ObjectId.Heal | ObjectId.Combat {
+        return object === ObjectId.Heal || object === ObjectId.Combat;
+    }
+
+    private validateShrineGroup(shrineCells: GameCellDto[]): void {
+        if (shrineCells.length !== SHRINE_CELL_COUNT) {
+            throw new BadRequestException(VALIDATION_MESSAGES.shrine.invalidPlacement);
+        }
+
+        const topLeft = shrineCells.find((cell) => cell.shrinePart === ShrinePart.TopLeft);
+        const topRight = shrineCells.find((cell) => cell.shrinePart === ShrinePart.TopRight);
+        const bottomLeft = shrineCells.find((cell) => cell.shrinePart === ShrinePart.BottomLeft);
+        const bottomRight = shrineCells.find((cell) => cell.shrinePart === ShrinePart.BottomRight);
+
+        if (!topLeft || !topRight || !bottomLeft || !bottomRight) {
+            throw new BadRequestException(VALIDATION_MESSAGES.shrine.invalidPlacement);
+        }
+
+        if (
+            shrineCells.some((cell) => cell.object !== topLeft.object || !cell.shrineId || !cell.shrinePart || !isTerrainTile(cell.tile)) ||
+            topRight.row !== topLeft.row ||
+            topRight.column !== topLeft.column + 1 ||
+            bottomLeft.row !== topLeft.row + 1 ||
+            bottomLeft.column !== topLeft.column ||
+            bottomRight.row !== topLeft.row + 1 ||
+            bottomRight.column !== topLeft.column + 1
+        ) {
+            throw new BadRequestException(VALIDATION_MESSAGES.shrine.invalidPlacement);
         }
     }
 }

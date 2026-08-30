@@ -1,0 +1,203 @@
+<div class="page-container">
+    <header class="end-header">
+        <div class="header-left">
+            <button type="button" class="home-icon-button" (click)="goToHome()" aria-label="Retour a l'accueil"></button>
+            <h1>Fin Partie</h1>
+        </div>
+    </header>
+
+    <section class="player-section card">
+        <div class="card-header"><h2>Tableau de la liste des joueurs</h2></div>
+
+        <div class="card-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th (click)="sortBy('name')" [class.active]="currentSortColumn === 'name'">
+                            <div class="th-content">
+                                <span>Nom</span>
+                                <span class="sort-icon" aria-hidden="true">
+                                    <span class="arrow up" [class.active]="currentSortColumn === 'name' && isSortAscending"></span>
+                                    <span class="arrow down" [class.active]="currentSortColumn === 'name' && !isSortAscending"></span>
+                                </span>
+                            </div>
+                        </th>
+                        <th (click)="sortBy('combatsTotal')" [class.active]="currentSortColumn === 'combatsTotal'">
+                            <div class="th-content">
+                                <span>Nombre de combats</span>
+                                <span class="sort-icon" aria-hidden="true">
+                                    <span class="arrow up" [class.active]="currentSortColumn === 'combatsTotal' && isSortAscending"></span>
+                                    <span class="arrow down" [class.active]="currentSortColumn === 'combatsTotal' && !isSortAscending"></span>
+                                </span>
+                            </div>
+                        </th>
+                        <th (click)="sortBy('combatsWon')" [class.active]="currentSortColumn === 'combatsWon'">
+                            <div class="th-content">
+                                <span>Nombre de victoires</span>
+                                <span class="sort-icon" aria-hidden="true">
+                                    <span class="arrow up" [class.active]="currentSortColumn === 'combatsWon' && isSortAscending"></span>
+                                    <span class="arrow down" [class.active]="currentSortColumn === 'combatsWon' && !isSortAscending"></span>
+                                </span>
+                            </div>
+                        </th>
+                        <th (click)="sortBy('combatsLost')" [class.active]="currentSortColumn === 'combatsLost'">
+                            <div class="th-content">
+                                <span>Nombre de defaites</span>
+                                <span class="sort-icon" aria-hidden="true">
+                                    <span class="arrow up" [class.active]="currentSortColumn === 'combatsLost' && isSortAscending"></span>
+                                    <span class="arrow down" [class.active]="currentSortColumn === 'combatsLost' && !isSortAscending"></span>
+                                </span>
+                            </div>
+                        </th>
+                        <th (click)="sortBy('totalDamageTaken')" [class.active]="currentSortColumn === 'totalDamageTaken'">
+                            <div class="th-content">
+                                <span>Total PV perdus</span>
+                                <span class="sort-icon" aria-hidden="true">
+                                    <span class="arrow up" [class.active]="currentSortColumn === 'totalDamageTaken' && isSortAscending"></span>
+                                    <span class="arrow down" [class.active]="currentSortColumn === 'totalDamageTaken' && !isSortAscending"></span>
+                                </span>
+                            </div>
+                        </th>
+                        <th (click)="sortBy('totalDamageDone')" [class.active]="currentSortColumn === 'totalDamageDone'">
+                            <div class="th-content">
+                                <span>Total PV infliges</span>
+                                <span class="sort-icon" aria-hidden="true">
+                                    <span class="arrow up" [class.active]="currentSortColumn === 'totalDamageDone' && isSortAscending"></span>
+                                    <span class="arrow down" [class.active]="currentSortColumn === 'totalDamageDone' && !isSortAscending"></span>
+                                </span>
+                            </div>
+                        </th>
+                        <th (click)="sortBy('visitedTiles')" [class.active]="currentSortColumn === 'visitedTiles'">
+                            <div class="th-content">
+                                <span>% des tuiles visitees</span>
+                                <span class="sort-icon" aria-hidden="true">
+                                    <span class="arrow up" [class.active]="currentSortColumn === 'visitedTiles' && isSortAscending"></span>
+                                    <span class="arrow down" [class.active]="currentSortColumn === 'visitedTiles' && !isSortAscending"></span>
+                                </span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (player of sortedPlayers; track player.id) {
+                    <tr>
+                        <td>
+                            <span>{{ player.name }}  </span>
+                            @if(player.id===currentUserId){
+                                <span class="you-label"> (vous) </span>
+                            }
+                        </td>
+                        <td>{{ player.combatsTotal }}</td>
+                        <td>
+                            <span class="badge win">{{ player.combatsWon }}</span>
+                        </td>
+                        <td>
+                            <span class="badge lose">{{ getCombatsLost(player) }}</span>
+                        </td>
+                        <td>{{ player.totalDamageTaken }}</td>
+                        <td>{{ player.totalDamageDone }}</td>
+                        <td>{{ calculateVisitedTilesPercentage(player) | number: '1.2-2' }} %</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="bottom-section">
+        <section class="global-stats card">
+            <div class="card-header">📊 Statistiques globales du jeu</div>
+            <div class="card-body">
+                <div class="stats-top">
+                    <div class="stat-box">
+                        <span class="label">⏱️ Duree de la partie</span>
+                        <span class="value">{{ getGameDuration() }}</span>
+                    </div>
+
+                    <div class="stat-box">
+                        <span class="label">🔁 Nombre total de tours</span>
+                        <span class="value">{{ getTotalTurns() }}</span>
+                    </div>
+                </div>
+
+                <div class="start-progress">
+                    <div class="progress-header">
+                        <span class="label">🗺️ Pourcentage de tuiles de terrain visitees par au moins un joueur</span>
+                        <span class="value">{{ calculateGlobalVisitedTilesPercentage() | number: '1.2-2' }} % </span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="calculateGlobalVisitedTilesPercentage"></div>
+                    </div>
+                </div>
+
+                <div class="start-progress">
+                    <div class="progress-header">
+                        <span class="label">🚪 Pourcentage de portes manipulees</span>
+                        <span class="value">{{ calculateManipulatedDoorPercentage() | number: '1.2-2' }} % </span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="calculateManipulatedDoorPercentage"></div>
+                    </div>
+                </div>
+
+                <div class="start-progress">
+                    <div class="progress-header">
+                        <span class="label">🛕 Pourcentage des sanctuaires ayant ete utilises au moins une fois</span>
+                        <span class="value">{{ calculateUsedShrinePercentage() | number: '1.2-2' }} % </span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="calculateUsedShrinePercentage"></div>
+                    </div>
+                </div>
+
+                @if (isCtfMode()) {
+                <div class="start-progress">
+                    <div class="progress-header">
+                        <span class="label">🚩 Nombre de joueurs differents ayant detenu le drapeau</span>
+                        <span class="value">{{ calculatePlayersFlag() }}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="calculatePlayersFlag"></div>
+                    </div>
+                </div>
+                }
+            </div>
+        </section>
+
+        <section class="chat-section card">
+            <div class="card-header">💬 Chat et journal du jeu</div>
+            <div class="card-body chat-card-body">
+                <div class="messages-panel-header">
+                    <div class="messages-tabs">
+                        <button
+                            type="button"
+                            class="messages-tab-button"
+                            (click)="activeMessageTab = 'chat'"
+                            [class.active]="activeMessageTab === 'chat'"
+                        >
+                            Chat
+                        </button>
+
+                        <button
+                            type="button"
+                            class="messages-tab-button"
+                            (click)="activeMessageTab = 'journal'"
+                            [class.active]="activeMessageTab === 'journal'"
+                        >
+                            Journal
+                        </button>
+                    </div>
+                </div>
+
+                <div class="messages-panel-body">
+                    @if(activeMessageTab==='chat'){
+                    <app-chat-zone [roomId]="roomId" [currentUser]="currentUserName" [playerId]="currentUserId" [isAbandoned]="false"></app-chat-zone>
+                    } @else {
+                    <app-game-journal [messages]="messages" [players]="session?.players ?? []"> </app-game-journal>
+                    }
+                </div>
+            </div>
+        </section>
+    </section>
+</div>

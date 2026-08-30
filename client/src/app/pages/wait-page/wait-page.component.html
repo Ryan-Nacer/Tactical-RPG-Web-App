@@ -1,1 +1,109 @@
-<div class="wait-page">Page d'attente</div>
+<div class="wait-page">
+    <header class="wait-header">
+        <div class="header-left">
+            <h1>Salle d'attente</h1>
+        </div>
+
+        <div class="header-actions">
+            @if (isCurrentUserHost) {
+            <button type="button" class="start-button" [disabled]="!canStartGame()" (click)="startGame()">Lancer la partie</button>
+            }
+            <button type="button" class="leave-button" (click)="leaveRoom()">Quitter la salle</button>
+        </div>
+    </header>
+
+    <main class="wait-main">
+        <section class="players-panel">
+            <div class="players-header">
+                <div class="players-title">
+                    <h2>Joueurs</h2>
+                    <span class="count">{{ players.length }}/{{ maxPlayers }}</span>
+                </div>
+                <div class="players-meta">
+                    @if (room) {
+                    <span class="room-status" [class.locked]="isRoomLocked()" [class.unlocked]="!isRoomLocked()">
+                        {{ isRoomLocked() ? 'Verrouillee' : 'Ouverte' }}
+                    </span>
+                    }
+                </div>
+            </div>
+
+            <div class="players-list">
+                @for (player of players; track player.id) { @if (isOrganizer(player.id)) {
+                <div class="players-info organizer">
+                    <img class="player-avatar" [src]="getAvatarSrc(player)" [alt]="'avatar de ' + player.name" />
+                    <span class="player-name">
+                        {{ player.name }}
+                        @if(player.id ===currentPlayerId){
+                            <span class="you-label">(vous)</span>
+                        }
+                    </span>
+                    <div class="player-trailing">
+                        <span class="organizer-badge" aria-label="Organisateur">Organisateur</span>
+                    </div>
+                </div>
+                } @else {
+                <div class="players-info">
+                    <img class="player-avatar" [src]="getAvatarSrc(player)" [alt]="'Avatar de ' + player.name" />
+                    <span class="player-name">{{ player.name }}
+                        @if(player.id ===currentPlayerId){
+                            <span class="you-label">( vous )</span>
+                        }
+                    </span>
+                    <div class="player-trailing">
+                        @if (isVirtualPlayer(player)) {
+                        <span
+                            class="jv-profile-badge"
+                            [class.jv-profile-badge--offensive]="player.playstyle === playstyle.Offensive"
+                            [class.jv-profile-badge--defensive]="player.playstyle === playstyle.Defensive"
+                            aria-label="Joueur virtuel"
+                        >
+                            {{ getVirtualPlayerLabel(player) }}
+                        </span>
+                        } @if (isCurrentUserHost) {
+                        <button type="button" class="kick-button" (click)="kickPlayer(player.id)">Exclure</button>
+                        }
+                    </div>
+                </div>
+                } }
+            </div>
+
+            @if (isCurrentUserHost) {
+            <div class="players-actions">
+                <div class="virtual-player-controls">
+                    @if (showVirtualPlayerOptions) {
+                    <div class="virtual-player-options">
+                        <button
+                            type="button"
+                            class="virtual-option-button virtual-option-button--offensive"
+                            (click)="addVirtualPlayer(playstyle.Offensive)"
+                        >
+                            Agressif
+                        </button>
+                        <button
+                            type="button"
+                            class="virtual-option-button virtual-option-button--defensive"
+                            (click)="addVirtualPlayer(playstyle.Defensive)"
+                        >
+                            Défensif
+                        </button>
+                    </div>
+                    }
+                    <button
+                        type="button"
+                        class="add-player-button"
+                        [disabled]="isRoomLocked()"
+                        (click)="showVirtualPlayerOptions = !showVirtualPlayerOptions"
+                    >
+                        Ajouter un joueur virtuel
+                    </button>
+                </div>
+            </div>
+            }
+        </section>
+
+        <section class="chat-panel">
+            <app-chat-zone [roomId]="currentRoomId" [currentUser]="name" [playerId]="currentPlayerId" [isAbandoned]="false"> </app-chat-zone>
+        </section>
+    </main>
+</div>

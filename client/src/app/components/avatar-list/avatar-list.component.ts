@@ -1,11 +1,8 @@
-import { Component, effect, EventEmitter, input, OnInit, Output, OnDestroy } from '@angular/core';
+import { Component, effect, EventEmitter, input, OnDestroy, OnInit, Output } from '@angular/core';
 import { PlayerCardComponent } from '@app/components/player-card/player-card.component';
 import { ConfigService } from '@app/services/config.service';
-import { PlayerAvatar } from '@common/player';
-
-const INTERVAL_DELAY = 100;
-const VISIBLE_CHARACTERS_COUNT = 5;
-const HALF_VISIBLE_CHARACTERS_COUNT = Math.floor(VISIBLE_CHARACTERS_COUNT / 2);
+import { AvatarName, PlayerAvatar } from '@common/player';
+import { AVATAR_LIST_HALF_VISIBLE_CHARACTERS_COUNT, AVATAR_LIST_INTERVAL_DELAY } from './avatar-list.constants';
 
 @Component({
     selector: 'app-avatar-list',
@@ -14,28 +11,25 @@ const HALF_VISIBLE_CHARACTERS_COUNT = Math.floor(VISIBLE_CHARACTERS_COUNT / 2);
     styleUrls: ['./avatar-list.component.scss'],
 })
 export class AvatarListComponent implements OnInit, OnDestroy {
-    // liste des avatars de joueurs predefinis
-    playerAvatars: PlayerAvatar[] = [];
-    currentAvatarIndex: number = 0;
+    private playerAvatars: PlayerAvatar[] = [];
+    private currentAvatarIndex: number = 0;
     visibleAvatars: PlayerAvatar[] = [];
+
     private intervalId: ReturnType<typeof setInterval> | undefined;
 
-    @Output() avatarSelected = new EventEmitter<{ avatar: PlayerAvatar; visibleIndex: number; isCenter: boolean }>();
+    @Output() avatarSelected = new EventEmitter<{ avatar: PlayerAvatar; visibleIndex: number } | null>();
     randomAvatarIndex = input(0);
+    takenAvatars = input<AvatarName[]>([]);
+    selectedAvatarName = input<AvatarName | null>(null);
 
-    constructor(private configService: ConfigService) {
+    constructor(private readonly configService: ConfigService) {
         effect(() => {
             const randomIndex = this.randomAvatarIndex();
 
             if (this.playerAvatars.length > 0) {
                 this.currentAvatarIndex = randomIndex;
                 this.updateVisibleAvatars();
-                const selectedAvatar = this.playerAvatars[this.currentAvatarIndex];
-                this.avatarSelected.emit({
-                    avatar: selectedAvatar,
-                    visibleIndex: HALF_VISIBLE_CHARACTERS_COUNT,
-                    isCenter: true,
-                });
+                this.emitCenteredAvatarSelection();
             }
         });
     }
@@ -45,46 +39,99 @@ export class AvatarListComponent implements OnInit, OnDestroy {
             if (this.configService.isLoaded) {
                 this.playerAvatars = this.configService.getPlayerAvatars();
                 this.updateVisibleAvatars();
+                this.emitCenteredAvatarSelection();
                 clearInterval(this.intervalId);
             }
-        }, INTERVAL_DELAY);
+        }, AVATAR_LIST_INTERVAL_DELAY);
     }
 
     prevAvatar(): void {
-        this.currentAvatarIndex = (this.currentAvatarIndex - 1 + this.playerAvatars.length) % this.playerAvatars.length;
+        if (this.playerAvatars.length === 0) {
+            return;
+        }
+
+        this.currentAvatarIndex = this.findNextAvailableIndex(-1);
         this.updateVisibleAvatars();
+        this.emitCenteredAvatarSelection();
     }
+
     nextAvatar(): void {
-        this.currentAvatarIndex = (this.currentAvatarIndex + 1) % this.playerAvatars.length;
+        if (this.playerAvatars.length === 0) {
+            return;
+        }
+
+        this.currentAvatarIndex = this.findNextAvailableIndex(1);
         this.updateVisibleAvatars();
+        this.emitCenteredAvatarSelection();
     }
 
     updateVisibleAvatars(): void {
         this.visibleAvatars = [];
 
-        for (let i = -HALF_VISIBLE_CHARACTERS_COUNT; i <= HALF_VISIBLE_CHARACTERS_COUNT; i++) {
+        for (let i = -AVATAR_LIST_HALF_VISIBLE_CHARACTERS_COUNT; i <= AVATAR_LIST_HALF_VISIBLE_CHARACTERS_COUNT; i++) {
             const index = (this.currentAvatarIndex + i + this.playerAvatars.length) % this.playerAvatars.length;
             this.visibleAvatars.push(this.playerAvatars[index]);
         }
     }
 
     isActive(index: number): boolean {
-        return index === HALF_VISIBLE_CHARACTERS_COUNT;
+        return index === AVATAR_LIST_HALF_VISIBLE_CHARACTERS_COUNT;
+    }
+
+    private emitCenteredAvatarSelection(): void {
+        const centeredAvatar = this.visibleAvatars[AVATAR_LIST_HALF_VISIBLE_CHARACTERS_COUNT];
+        if (!centeredAvatar || this.isTakenByOther(centeredAvatar)) {
+            this.avatarSelected.emit(null);
+            return;
+        }
+
+        this.avatarSelected.emit({
+            avatar: centeredAvatar,
+            visibleIndex: AVATAR_LIST_HALF_VISIBLE_CHARACTERS_COUNT,
+        });
     }
 
     sendChoice(playerAvatar: PlayerAvatar, visibleIndex: number): void {
+        if (this.isTakenByOther(playerAvatar)) {
+            return;
+        }
         const isCenter = this.isActive(visibleIndex);
-        this.avatarSelected.emit({ avatar: playerAvatar, visibleIndex, isCenter });
+        this.avatarSelected.emit({ avatar: playerAvatar, visibleIndex });
 
         if (!isCenter) {
             this.currentAvatarIndex =
-                (this.currentAvatarIndex + visibleIndex - HALF_VISIBLE_CHARACTERS_COUNT + this.playerAvatars.length) % this.playerAvatars.length;
+                (this.currentAvatarIndex + visibleIndex - AVATAR_LIST_HALF_VISIBLE_CHARACTERS_COUNT + this.playerAvatars.length) %
+                this.playerAvatars.length;
             this.updateVisibleAvatars();
         }
     }
 
     getActiveAvatar(): PlayerAvatar {
         return this.playerAvatars[this.currentAvatarIndex];
+    }
+
+    isAvatarTaken(playerAvatar: PlayerAvatar): boolean {
+        for (const name of this.takenAvatars()) {
+            if (playerAvatar.avatarName === name) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    isTakenByOther(playerAvatar: PlayerAvatar): boolean {
+        return this.isAvatarTaken(playerAvatar) && this.selectedAvatarName() !== playerAvatar.avatarName;
+    }
+
+    private findNextAvailableIndex(direction: -1 | 1): number {
+        for (let offset = 1; offset <= this.playerAvatars.length; offset++) {
+            const index = (this.currentAvatarIndex + direction * offset + this.playerAvatars.length) % this.playerAvatars.length;
+            if (!this.isTakenByOther(this.playerAvatars[index])) {
+                return index;
+            }
+        }
+
+        return this.currentAvatarIndex;
     }
 
     ngOnDestroy(): void {

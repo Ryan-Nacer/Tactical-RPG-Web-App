@@ -1,0 +1,44 @@
+@if (isOpen) {
+<div class="help-overlay" role="dialog" aria-modal="true" aria-label="Aide de l'edition" (click)="requestClose()">
+    <div class="help-modal" (click)="$event.stopPropagation()">
+        <div class="help-header">
+            <div>
+                <p class="help-kicker">Aide rapide</p>
+                <h2>Controles de l'editeur</h2>
+            </div>
+            <button type="button" class="help-close-button" (click)="requestClose()">Fermer</button>
+        </div>
+
+        <div class="help-content">
+            <section class="help-section help-section-mouse">
+                <div class="mouse-visual" aria-hidden="true">
+                    <div class="mouse-shell">
+                        <div class="mouse-button mouse-button-left">Gauche</div>
+                        <div class="mouse-button mouse-button-right">Droite</div>
+                        <div class="mouse-wheel"></div>
+                    </div>
+                </div>
+
+                <div class="help-copy">
+                    <h3>🖱️ Controles souris</h3>
+                    <ul>
+                        <li><strong>Clic gauche</strong> → place des tuiles ou des objets</li>
+                        <li><strong>Clic + glisser</strong> → placement continu des tuiles</li>
+                        <li><strong>Clic droit</strong> → supprime des tuiles</li>
+                        <li><strong>Clic droit + glisser</strong> → suppression continue</li>
+                        <li><strong>SHIFT + clic droit</strong> → supprime des objets</li>
+                        <li><strong>SHIFT</strong> peut etre presse ou relache pendant le glisser pour changer entre suppression de tuile et d’objet</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="help-section">
+                <h3>⌨️ Controles clavier</h3>
+                <ul>
+                    <li><strong>SHIFT</strong> → bascule le mode de suppression entre <strong>tuiles</strong> et <strong>objets</strong></li>
+                </ul>
+            </section>
+        </div>
+    </div>
+</div>
+}

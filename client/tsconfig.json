@@ -2,7 +2,7 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-      "baseUrl": "./",
+      "rootDir": "..",
       "outDir": "./dist/out-tsc",
       "forceConsistentCasingInFileNames": true,
       "strict": true,
@@ -22,7 +22,11 @@
       "importHelpers": true,
       "target": "ES2022",
       "module": "es2020",
+      "types": ["jasmine"],
       "paths": {
+        "src/*": [
+          "./src/*"
+        ],
         "@app/*": [
           "./src/app/*"
         ],
@@ -30,7 +34,7 @@
           "../common/*"
         ]
       },
-      "useDefineForClassFields": false
+      "useDefineForClassFields": false,
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false,

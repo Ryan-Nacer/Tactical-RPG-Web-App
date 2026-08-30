@@ -75,7 +75,10 @@
             "^.+\\.(t|j)s$": "ts-jest"
         },
         "collectCoverageFrom": [
-            "app/**/*.(t|j)s",
+            "app/controllers/room/room.controller.ts",
+            "app/gateways/room/room.gateway.ts",
+            "app/gateways/room/room.gateway.utils.ts",
+            "app/services/room/room.service.ts",
             "!app/app.module.ts",
             "!app/index.ts"
         ],

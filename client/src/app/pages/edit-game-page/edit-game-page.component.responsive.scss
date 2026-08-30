@@ -1,0 +1,220 @@
+/* responsive */
+@media (max-width: 1480px) {
+    .editorLayout {
+        grid-template-columns: 190px minmax(460px, 1fr) 320px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .editorLayout {
+        grid-template-columns: 180px 1fr 300px;
+        gap: 1rem;
+    }
+
+    .gridArea {
+        --game-grid-max-size: min(100%, calc(100vh - 240px));
+    }
+}
+
+@media (max-width: 1024px) {
+    .editorLayout {
+        height: auto;
+        min-height: calc(100vh - 72px);
+        overflow: visible;
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+
+    .leftPalette,
+    .toolsPanel,
+    .gridArea {
+        width: min(100%, 960px);
+        margin-inline: auto;
+    }
+
+    .leftPalette .toolBar {
+        grid-template-columns: repeat(4, 54px);
+        justify-content: center;
+    }
+
+    .gridArea {
+        order: 2;
+    }
+
+    .leftPalette {
+        order: 1;
+    }
+
+    .toolsPanel {
+        order: 3;
+    }
+}
+
+@media (max-width: 720px) {
+    .pageTitle {
+        height: 64px;
+        padding: 0 14px;
+        font-size: 1.2rem;
+    }
+
+    .editorLayout {
+        min-height: calc(100vh - 64px);
+    }
+
+    .editorLayout {
+        padding: 0.85rem;
+        gap: 0.85rem;
+    }
+
+    .leftPalette .toolBar {
+        grid-template-columns: repeat(3, 52px);
+        justify-content: center;
+    }
+
+    .toolIconBtn {
+        width: 52px;
+        height: 52px;
+    }
+
+    .gridArea {
+        padding: 0.95rem;
+    }
+
+    .actionButtons {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-height: 860px) {
+    .editorLayout {
+        padding: 0.9rem;
+        gap: 0.4rem;
+    }
+
+    .leftPalette,
+    .toolsPanel {
+        padding: 0.8rem;
+    }
+
+    .leftPalette,
+    .toolsPanel {
+        gap: 1.4rem;
+    }
+
+    .toolSection {
+        padding: 0.58rem 0.62rem;
+    }
+
+    .sectionTitle {
+        margin-bottom: 0.6rem;
+        padding-bottom: 0.32rem;
+        font-size: 0.88rem;
+    }
+
+    .leftPalette .toolBar {
+        gap: 0.6rem;
+    }
+
+    .toolIconBtn {
+        width: 52px;
+        height: 52px;
+    }
+
+    .toolIcon,
+    .toolIconImage {
+        width: 44px;
+        height: 44px;
+    }
+
+    .formGroup {
+        gap: 0.28rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .formGroup label {
+        font-size: 0.76rem;
+    }
+
+    .formGroup input,
+    .formGroup textarea {
+        font-size: 0.84rem;
+        padding: 0.46rem 0.56rem;
+    }
+
+    .actionButtons {
+        gap: 0.42rem;
+    }
+
+    .primaryBtn,
+    .secondaryBtn,
+    .dangerBtn {
+        padding: 7px 12px;
+        font-size: 0.92rem;
+    }
+
+    .savingLine {
+        margin-top: 0.45rem;
+        padding: 0.38rem 0.48rem;
+        font-size: 0.74rem;
+    }
+}
+
+@media (max-height: 760px) {
+    .editorLayout {
+        padding: 0.75rem;
+    }
+
+    .leftPalette,
+    .toolsPanel {
+        padding: 0.7rem;
+        gap: 1rem;
+    }
+
+    .toolSection {
+        padding: 0.5rem 0.54rem;
+    }
+
+    .sectionTitle {
+        margin-bottom: 0.45rem;
+        font-size: 0.82rem;
+    }
+
+    .leftPalette .toolBar {
+        gap: 0.45rem;
+    }
+
+    .toolIconBtn {
+        width: 48px;
+        height: 48px;
+    }
+
+    .toolIcon,
+    .toolIconImage {
+        width: 40px;
+        height: 40px;
+    }
+
+    .toolCount {
+        min-width: 1rem;
+        height: 1rem;
+        font-size: 0.58rem;
+        line-height: 1rem;
+    }
+
+    .formGroup {
+        margin-bottom: 0.5rem;
+    }
+
+    .formGroup input,
+    .formGroup textarea {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.5rem;
+    }
+
+    .primaryBtn,
+    .secondaryBtn,
+    .dangerBtn {
+        padding: 6px 11px;
+        font-size: 0.86rem;
+    }
+}

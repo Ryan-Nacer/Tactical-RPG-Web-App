@@ -1,10 +1,21 @@
-<div class="visible-game-list">
-    @if (visibleGames.length === 0) {
-    <p>Aucun jeu visible disponible. Créez-en un depuis la page d'administration!</p>
-    } @for(game of visibleGames; track game.id){
-    <div class="game-card">
-        <app-game-card [game]="game"></app-game-card>
-        <button [routerLink]="['/character-creation']">Créer une partie</button>
+<main class="match-main">
+    <h2 class="games-section-title">Jeux disponibles</h2>
+
+    <div class="visible-game-list">
+        @if (visibleGames.length === 0) {
+        <p class="empty-state">Aucun jeu visible disponible. Créez-en un depuis la page d'administration!</p>
+        } @for (game of visibleGames; track game.id) {
+        <div class="game-card-wrapper">
+            <app-game-card [game]="game"></app-game-card>
+
+            <button
+                class="create-game-button"
+                [routerLink]="['/character-creation']"
+                [queryParams]="{ gameId: game.id, host: true, gridSize: game.size, gameName: game.name, mode: game.mode }"
+            >
+                Créer une partie
+            </button>
+        </div>
+        }
     </div>
-    }
-</div>
+</main>

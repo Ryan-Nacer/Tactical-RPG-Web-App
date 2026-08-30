@@ -2,15 +2,32 @@ import { Games } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { GameCellDto } from '@app/model/dto/game/game-cell.dto';
 import { CreateGameDtoMapper } from '@app/model/dto/mappers/create-game-dto-mapper';
-import { TileId, Mode } from '@common/game';
+import { TileId, Mode, GridSize } from '@common/game';
 
+/**
+ * Strategie :
+ * - verifier les deux directions de mapping entre DTO HTTP et modele de persistence
+ *   pour documenter explicitement le contrat entre les couches
+ * - insister sur les valeurs injectees par le mapper, parce que ce sont elles qui
+ *   protègent les invariants du domaine quand le DTO est incomplet
+ *
+ * Cas limites cibles :
+ * - visibilite forcee a false a la creation : un nouveau jeu doit etre republie
+ *   explicitement apres revision
+ * - cellules absentes des deux cotes du mapping : le mapper doit normaliser vers
+ *   un tableau vide plutot que laisser circuler `undefined`
+ * - conservation des champs imageURL et lastModified : ces metadonnees doivent
+ *   survivre aux aller-retours pour garder un editeur et une persistence coherents
+ *
+ * Ces cas garantissent que le mapper garde un contrat stable entre les couches HTTP et persistence.
+ */
 describe('CreateGameDtoMapper', () => {
     const gameId = 'game-1';
     const gameName = 'Test Game';
-    const gameSize = '10';
+    const gameSize = GridSize.Small;
     const gameDescription = 'Description';
 
-    it('toModel should map dto to model and force visibility true', () => {
+    it('toModel should map dto to model and force visibility false', () => {
         const cell = new GameCellDto();
         cell.row = 0;
         cell.column = 1;
@@ -33,7 +50,7 @@ describe('CreateGameDtoMapper', () => {
         expect(model.mode).toBe(dto.mode);
         expect(model.description).toBe(dto.description);
         expect(model.cells).toEqual(dto.cells);
-        expect(model.isVisible).toBe(true);
+        expect(model.isVisible).toBe(false);
     });
 
     it('toDto should default missing cells to empty array', () => {

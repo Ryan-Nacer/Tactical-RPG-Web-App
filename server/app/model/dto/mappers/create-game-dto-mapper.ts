@@ -12,7 +12,7 @@ export class CreateGameDtoMapper {
             description: createGameDto.description,
             mode: createGameDto.mode,
             cells: createGameDto.cells ?? [],
-            isVisible: true,
+            isVisible: false,
         };
     }
 

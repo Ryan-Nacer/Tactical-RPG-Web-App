@@ -1,19 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { GameEvents } from './game.gateway.events';
-
-export enum GameListUpdateType {
-    Deleted = 'deleted',
-    Visibility = 'visibility',
-    Created = 'created',
-}
-
-export interface GameListUpdatePayload {
-    type: GameListUpdateType;
-    gameId: string;
-    visible?: boolean;
-}
+import { GameEvents, GameListUpdatePayload } from './game.gateway.events';
 
 @WebSocketGateway({ cors: true })
 @Injectable()

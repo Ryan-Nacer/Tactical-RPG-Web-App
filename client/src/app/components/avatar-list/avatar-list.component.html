@@ -1,13 +1,19 @@
 <div class="container">
-    <button (click)="prevAvatar()">Précédent</button>
+    <button class="nav-button nav-button-prev" (click)="prevAvatar()" aria-label="Avatar precedent">&lt;&lt;</button>
 
     <div class="avatar-list">
         @for(playerAvatar of visibleAvatars; let i = $index; track i){
-        <div class="avatar-card" [class.active]="isActive(i)" (click)="sendChoice(playerAvatar, i)">
+        <div
+            class="avatar-card"
+            [class.active]="isActive(i)"
+            [class.taken]="isTakenByOther(playerAvatar)"
+            [class.selected]="playerAvatar.avatarName === selectedAvatarName()"
+            (click)="sendChoice(playerAvatar, i)"
+        >
             <app-player-card [avatarName]="playerAvatar.avatarName" [imageUrl]="playerAvatar.imageUrl"> </app-player-card>
         </div>
         }
     </div>
 
-    <button (click)="nextAvatar()">Suivant</button>
+    <button class="nav-button nav-button-next" (click)="nextAvatar()" aria-label="Avatar suivant">&gt;&gt;</button>
 </div>

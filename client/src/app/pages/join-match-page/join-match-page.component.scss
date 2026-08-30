@@ -1,0 +1,326 @@
+:host {
+    --gold: #d4af37;
+    --bronze: #4e3b31;
+
+    display: block;
+    min-height: 100%;
+    color: #2f241d;
+    background:
+        radial-gradient(circle at 14% 14%, rgba(212, 175, 55, 0.18), transparent 36%),
+        radial-gradient(circle at 82% 20%, rgba(26, 58, 95, 0.22), transparent 44%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0 2px, rgba(0, 0, 0, 0.04) 2px 5px),
+        linear-gradient(155deg, rgba(34, 31, 27, 0.48), rgba(30, 30, 30, 0.56)),
+        url('../../../assets/images/match-creation-bg.png') center / cover no-repeat fixed;
+    position: relative;
+    box-sizing: border-box;
+}
+
+:host::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.05);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: repeating-linear-gradient(0deg, rgba(78, 59, 49, 0.03) 0 2px, rgba(255, 255, 255, 0.03) 2px 4px),
+        linear-gradient(180deg, rgba(239, 229, 211, 0.98), rgba(228, 214, 192, 0.97));
+    border: 1px solid rgba(78, 59, 49, 0.9);
+    border-bottom: 2px solid rgba(212, 175, 55, 0.8);
+    box-shadow:
+        inset 0 0 0 1px rgba(212, 175, 55, 0.16),
+        0 6px 16px rgba(0, 0, 0, 0.22);
+    position: relative;
+    z-index: 1;
+}
+
+.back-button {
+    background: linear-gradient(180deg, rgba(237, 211, 155, 0.98), rgba(215, 180, 100, 0.96));
+    color: #5a3c14;
+    border: 1px solid rgba(122, 88, 32, 0.9);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 28px;
+    font-family: 'Cinzel', serif;
+    cursor: pointer;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 245, 220, 0.8),
+        0 4px 10px rgba(0, 0, 0, 0.18);
+    transition: all 0.18s ease;
+}
+
+.back-button:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 248, 230, 0.88),
+        0 0 0 3px rgba(212, 175, 55, 0.22),
+        0 7px 14px rgba(0, 0, 0, 0.24);
+}
+
+.back-button:active {
+    transform: translateY(0);
+}
+
+.header-text h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #423227;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.header-text p {
+    margin: 4px 0 0;
+    font-size: 0.95rem;
+    color: #6a543e;
+    font-weight: 600;
+}
+
+.rooms-section {
+    padding: 28px;
+    position: relative;
+    z-index: 1;
+}
+
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.empty-room-state {
+    grid-column: 1 / -1;
+    padding: 24px 26px;
+    border-radius: 16px;
+    text-align: center;
+    background: repeating-linear-gradient(0deg, rgba(78, 59, 49, 0.03) 0 2px, rgba(255, 255, 255, 0.03) 2px 4px),
+        linear-gradient(180deg, rgba(239, 229, 211, 0.98), rgba(228, 214, 192, 0.97));
+    border: 1px solid rgba(78, 59, 49, 0.9);
+    box-shadow:
+        inset 0 0 0 1px rgba(212, 175, 55, 0.16),
+        inset 0 0 0 3px rgba(233, 220, 201, 0.54),
+        0 7px 14px rgba(0, 0, 0, 0.2);
+}
+
+.empty-room-state h2 {
+    margin: 0 0 10px;
+    color: #3a2919;
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.empty-room-state p {
+    margin: 0;
+    color: #6a543e;
+    font-size: 1rem;
+    line-height: 1.45;
+    font-weight: 600;
+}
+
+.empty-room-state p + p {
+    margin-top: 8px;
+}
+
+.room-card {
+    background: repeating-linear-gradient(0deg, rgba(78, 59, 49, 0.03) 0 2px, rgba(255, 255, 255, 0.03) 2px 4px),
+        linear-gradient(180deg, rgba(239, 229, 211, 0.98), rgba(228, 214, 192, 0.97));
+    border: 1px solid rgba(78, 59, 49, 0.9);
+    border-radius: 16px;
+    padding: 20px;
+    color: #2f241d;
+    box-shadow:
+        inset 0 0 0 1px rgba(212, 175, 55, 0.16),
+        inset 0 0 0 3px rgba(233, 220, 201, 0.54),
+        0 7px 14px rgba(0, 0, 0, 0.2);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.room-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        inset 0 0 0 1px rgba(212, 175, 55, 0.26),
+        inset 0 0 0 3px rgba(233, 220, 201, 0.64),
+        0 10px 18px rgba(0, 0, 0, 0.28);
+}
+
+.room-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(78, 59, 49, 0.35);
+}
+
+.room-card-header h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #3a2919;
+    margin: 0;
+    letter-spacing: 0.05em;
+}
+
+.room-mode {
+    margin-bottom: 12px;
+}
+
+.mode-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, rgba(209, 221, 235, 0.98), rgba(171, 188, 208, 0.94));
+    color: #1f3046;
+    border: 1px solid rgba(61, 88, 118, 0.6);
+    box-shadow:
+        inset 0 1px 0 rgba(245, 252, 255, 0.78),
+        0 1px 4px rgba(20, 42, 68, 0.16);
+}
+
+.mode-badge.ctf {
+    background: linear-gradient(180deg, rgba(255, 209, 198, 0.98), rgba(232, 146, 126, 0.95));
+    color: #5a1710;
+    border: 1px solid rgba(131, 38, 28, 0.58);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 236, 231, 0.78),
+        0 1px 4px rgba(103, 24, 16, 0.18);
+}
+
+.room-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #1f6b2e;
+    font-weight: 700;
+    opacity: 1;
+}
+
+.room-status::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: #2f9b43;
+    box-shadow: 0 0 6px rgba(47, 155, 67, 0.55);
+}
+
+.room-host {
+    margin: 0 0 12px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #423227;
+}
+
+.room-players {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #5a4033;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progess-fill {
+    width: 50%;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.85), rgba(184, 139, 44, 0.9));
+    transition: width 0.3s ease;
+}
+
+.remaning-places {
+    font-size: 0.9rem;
+    color: #6a543e;
+    font-weight: 600;
+    margin: 0 0 12px;
+}
+
+.join-button {
+    width: 100%;
+    border: 1px solid rgba(78, 59, 49, 0.95);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #5a3a12;
+    background: linear-gradient(180deg, rgba(248, 225, 173, 0.98), rgba(222, 184, 99, 0.96));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 245, 226, 0.72),
+        inset 0 -1px 0 rgba(78, 59, 49, 0.2),
+        0 4px 8px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        filter 0.16s ease;
+}
+
+.join-button:hover {
+    background: linear-gradient(180deg, rgba(252, 236, 198, 0.99), rgba(232, 198, 121, 0.98));
+    transform: translateY(-2px) scale(1.012);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 248, 235, 0.8),
+        0 0 0 3px rgba(212, 175, 55, 0.24),
+        0 9px 16px rgba(0, 0, 0, 0.18);
+}
+
+.join-button:active {
+    transform: translateY(0);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 245, 226, 0.72),
+        0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 1200px) {
+    .room-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .room-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header-text h1 {
+        font-size: 1.8rem;
+    }
+
+    .rooms-section {
+        padding: 16px;
+    }
+}

@@ -2,6 +2,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FooterComponent } from './footer.component';
 
+/**
+ * Strategie :
+ * - tester FooterComponent comme composant de pied de page statique
+ * - verifier la creation et la presence de la classe CSS attendue
+ *
+ * Cas limites cibles :
+ * - aucun cas limite metier, le composant doit simplement rester stable au rendu
+ */
 describe('FooterComponent', () => {
     let component: FooterComponent;
     let fixture: ComponentFixture<FooterComponent>;

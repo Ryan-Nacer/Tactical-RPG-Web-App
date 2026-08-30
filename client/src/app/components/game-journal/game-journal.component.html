@@ -1,0 +1,37 @@
+<div class="messages-list">
+    @for (entry of gamePageStateService.getJournalEntries(messages, players); track entry.message.id) {
+    <div class="message-line" [class.action]="entry.message.type !== 'system'" [class.combat]="entry.message.type === 'combat'">
+        <div class="message-meta-row">
+            <span class="message-time">
+                {{ gamePageDisplayService.formatMessageTime(entry.message.createdAt) }}
+            </span>
+            <span class="message-type-badge">
+                {{ gamePageStateService.getJournalEntryTypeLabel(entry.message) }}
+            </span>
+        </div>
+
+        @if (entry.involvedPlayerNamesLabel) {
+        <span class="message-players">{{ entry.involvedPlayerNamesLabel }}</span>
+        }
+
+        <span class="message-text">{{ entry.message.text }}</span>
+    </div>
+    } @empty {
+    <p class="empty-state">Aucun evenement de partie pour le moment.</p>
+    }
+</div>
+
+<!--<p>game-journal works!</p>
+
+
+<div class="messages-list">
+    @for (message of gamePageStateService.getJournalMessages(messages); track message.id) {
+    <div class="message-line" [class.action]="message.type !== 'system'">
+        <span class="message-time">{{ gamePageDisplayService.formatMessageTime(message.createdAt) }}</span>
+        <span class="message-text">{{ message.text }}</span>
+    </div>
+    } @empty {
+    <p class="empty-state">Aucun evenement de partie pour le moment.</p>
+    }
+</div>
+-->

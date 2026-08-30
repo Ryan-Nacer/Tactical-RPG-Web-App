@@ -1,0 +1,9 @@
+@use 'sass:meta';
+
+app-game-page {
+    @include meta.load-css('./game-page.component.layout');
+    @include meta.load-css('./game-page.component.sidebar');
+    @include meta.load-css('./game-page.component.players');
+    @include meta.load-css('./game-page.component.messages');
+    @include meta.load-css('./game-page.component.responsive');
+}

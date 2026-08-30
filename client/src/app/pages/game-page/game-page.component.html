@@ -1,6 +1,427 @@
-<div class="container">
-    <app-sidebar id="sidebar"></app-sidebar>
-    <section class="play-area-container">
-        <app-play-area class="play-area" tabindex="0"></app-play-area>
+    <div class="game-page" [class.debug-enabled]="debugMode">
+    @if (isGameOverPopupVisible) {
+    <div class="game-over-overlay" role="dialog" aria-modal="true" aria-label="Partie terminée">
+        <div
+            class="game-over-modal"
+            [class.game-over-win]="gameOverStatus === 'win'"
+            [class.game-over-loss]="gameOverStatus === 'loss'"
+            [class.game-over-info]="gameOverStatus === 'info'"
+        >
+            <h2 class="game-over-title">{{ gameOverTitle }}</h2>
+            <p>{{ gameOverPopupMessage }}</p>
+        </div>
+    </div>
+    } @if (pendingSanctuaryChoice) {
+    <div class="sanctuary-choice-overlay" role="dialog" aria-modal="true" aria-label="Choix du sanctuaire">
+        <div class="sanctuary-choice-modal">
+            <h2>{{ getSanctuaryChoiceTitle() }}</h2>
+            <p>Choisissez l'effet du sanctuaire. Tant que cette fenetre est ouverte, le deplacement est bloque.</p>
+            <p class="sanctuary-choice-timer">Temps restant du tour : {{ countdownValueLabel }}</p>
+            <div class="sanctuary-choice-actions">
+                <button type="button" class="primary-button" (click)="chooseSanctuaryMode('normal')">Normal</button>
+                <button type="button" class="secondary-button" (click)="chooseSanctuaryMode('double-or-nothing')">Double ou rien</button>
+                <button type="button" class="danger-button" (click)="closeSanctuaryChoice()">Annuler</button>
+            </div>
+        </div>
+    </div>
+    } @if (showCombatResultMessage) {
+    <app-combat-result-message
+        [currentPlayerId]="effectiveCurrentPlayerId"
+        [winnerPlayerId]="combatResultWinnerId"
+        [winnerPlayerName]="combatResultWinnerName"
+        [isGameWinner]="combatResultIsGameWinner"
+        [isTie]="combatResultIsTie"
+        (closeRequested)="onCombatResultCloseRequested()"
+    ></app-combat-result-message>
+    } @else if (shouldRenderCombatOverlay) {
+    <app-combat-overlay
+        [attackerName]="combatOverlayAttackerName"
+        [defenderName]="combatOverlayDefenderName"
+        [attackerAvatarUrl]="combatOverlayAttackerAvatarUrl"
+        [defenderAvatarUrl]="combatOverlayDefenderAvatarUrl"
+        [currentTurnNumber]="combatOverlayTurnNumber"
+        [remainingSeconds]="countdownSeconds"
+        [attackerDiceResult]="combatOverlayAttackerDiceResult"
+        [attackerAttackBase]="combatOverlayAttackerAttackBase"
+        [attackerAttackPenalty]="combatOverlayAttackerAttackPenalty"
+        [attackerDefenseBase]="combatOverlayAttackerDefenseBase"
+        [attackerDefensePenalty]="combatOverlayAttackerDefensePenalty"
+        [attackerDefenseDiceResult]="combatOverlayAttackerDefenseDiceResult"
+        [attackerHealth]="combatOverlayAttackerHealth"
+        [attackerMaxHealth]="combatOverlayAttackerMaxHealth"
+        [defenderDiceResult]="combatOverlayDefenderDiceResult"
+        [defenderAttackBase]="combatOverlayDefenderAttackBase"
+        [defenderAttackPenalty]="combatOverlayDefenderAttackPenalty"
+        [defenderDefenseBase]="combatOverlayDefenderDefenseBase"
+        [defenderDefensePenalty]="combatOverlayDefenderDefensePenalty"
+        [defenderDefenseDiceResult]="combatOverlayDefenderDefenseDiceResult"
+        [defenderHealth]="combatOverlayDefenderHealth"
+        [defenderMaxHealth]="combatOverlayDefenderMaxHealth"
+        [attackerAttackPostureBonus]="combatOverlayAttackerAttackPostureBonus"
+        [attackerDefensePostureBonus]="combatOverlayAttackerDefensePostureBonus"
+        [defenderAttackPostureBonus]="combatOverlayDefenderAttackPostureBonus"
+        [defenderDefensePostureBonus]="combatOverlayDefenderDefensePostureBonus"
+        [attackerAttackTotal]="combatOverlayAttackerAttackTotal"
+        [attackerDefenseTotal]="combatOverlayAttackerDefenseTotal"
+        [defenderAttackTotal]="combatOverlayDefenderAttackTotal"
+        [defenderDefenseTotal]="combatOverlayDefenderDefenseTotal"
+        [attackerDamageTaken]="combatOverlayAttackerDamageTaken"
+        [defenderDamageTaken]="combatOverlayDefenderDamageTaken"
+        [isExiting]="isCombatOverlayExiting"
+        [isCombatActive]="isCombatOverlayVisible"
+        (postureSelected)="onCombatPostureSelected($event)"
+    ></app-combat-overlay>
+    } @if (shouldShowCombatSpectatorBanner) {
+    <div class="combat-spectator-overlay" role="dialog" aria-modal="true" aria-label="Combat en cours">
+        <div class="combat-spectator-modal">
+            <h2>Combat en cours</h2>
+            <p class="combat-spectator-label">{{ combatSpectatorBannerLabel }}</p>
+            <p class="combat-spectator-help">Le reste de la partie est temporairement en pause. Veuillez patienter.</p>
+        </div>
+    </div>
+    } @if (pendingFlagTransferRequest) {
+    <div class="flag-transfer-overlay" role="dialog" aria-modal="true" aria-label="Transfert du drapeau">
+        <div class="flag-transfer-modal">
+            <h2>Transfert du drapeau</h2>
+            <p>{{ pendingFlagTransferRequest.initiatorName }} vous propose de recevoir le drapeau.</p>
+            <p class="flag-transfer-timer">Temps restant du tour : {{ countdownValueLabel }}</p>
+            <div class="flag-transfer-actions">
+                <button type="button" class="primary-button" (click)="respondToFlagTransfer(true)">Accepter</button>
+                <button type="button" class="danger-button" (click)="respondToFlagTransfer(false)">Refuser</button>
+            </div>
+        </div>
+    </div>
+    } @if (isAbandonConfirmVisible) {
+    <div class="abandon-confirm-overlay" role="dialog" aria-modal="true" aria-label="Confirmation d'abandon">
+        <div class="abandon-confirm-modal">
+            <h2>Abandonner la partie ?</h2>
+            <p>Vous allez quitter la partie et revenir a la vue initiale.</p>
+            <div class="abandon-confirm-actions">
+                <button type="button" class="secondary-button" (click)="closeAbandonConfirm()">Annuler</button>
+                <button type="button" class="danger-button" (click)="abandonGame()">Confirmer l'abandon</button>
+            </div>
+        </div>
+    </div>
+    } @if (debugMode) {
+    <div class="debug-banner">
+        <span class="debug-dot"></span>
+        <span>Mode debug actif</span>
+    </div>
+    }
+
+    <app-game-help-modal [isOpen]="isHelpModalVisible" (closeRequested)="closeHelpModal()"></app-game-help-modal>
+
+    <header class="game-header">
+        <div class="header-left">
+            <span class="header-icon" aria-hidden="true">⚔</span>
+            <span class="header-title">PARTIE EN COURS</span>
+        </div>
+        <div class="header-center">
+            <span class="header-label">Nom de la partie</span>
+            <span class="header-game-name">{{ game?.name ?? '—' }}</span>
+        </div>
+    </header>
+
+    <section class="play-layout">
+        <aside class="info-panel">
+            <div class="panel-card panel-card-subtle compact-panel party-summary-card">
+                <h2>INFOS PARTIE</h2>
+
+                <dl class="stats-list">
+                    <div>
+                        <dt>Joueurs</dt>
+                        <dd>{{ currentPlayersCount }}/{{ maxPlayersCount }}</dd>
+                    </div>
+                    <div>
+                        <dt>Joueur actif</dt>
+                        <dd>{{ activePlayer?.name ?? '-' }}</dd>
+                    </div>
+                    <div>
+                        <dt>Taille</dt>
+                        <dd>{{ gamePageStateService.getMapSizeLabel(session, game) }}</dd>
+                    </div>
+                </dl>
+
+                @if (canToggleDebug) {
+                <button type="button" class="debug-button" [class.active]="debugMode" (click)="toggleDebugMode()">
+                    {{ debugMode ? 'Debogage actif' : 'Activer le debogage' }}
+                </button>
+                }
+            </div>
+
+            <div class="panel-card panel-card-subtle compact-panel player-summary-card">
+                <h2>PERSONNAGE</h2>
+
+                @if (currentPlayer) {
+                <div class="player-card">
+                    <div class="player-card-top">
+                        <img class="avatar-preview" [src]="currentPlayerInGameAvatarUrl" [alt]="'Avatar de ' + currentPlayer.name" />
+
+                        <div class="player-identity">
+                            <p class="player-summary-name">{{ currentPlayer.name }}</p>
+                            <div class="player-health-line">
+                                <span class="player-health-label">PV</span>
+                                <span class="player-health-value">{{ currentPlayer.health }} / {{ currentPlayer.maxHealth }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <dl class="player-core-stats">
+                        <div class="player-core-stat-card">
+                            <dt>Att</dt>
+                            <dd>
+                                <span class="player-stat-value">{{ currentPlayer.attack }}</span>
+                                <span class="player-stat-die">{{ currentPlayer.attackDice }}</span>
+                            </dd>
+                        </div>
+                        <div class="player-core-stat-card">
+                            <dt>Def</dt>
+                            <dd>
+                                <span class="player-stat-value">{{ currentPlayer.defense }}</span>
+                                <span class="player-stat-die">{{ currentPlayer.defenseDice }}</span>
+                            </dd>
+                        </div>
+                        <div class="player-core-stat-card">
+                            <dt>Rap</dt>
+                            <dd>
+                                <span class="player-stat-value">{{ currentPlayer.speed }}</span>
+                            </dd>
+                        </div>
+                        <div class="player-core-stat-card">
+                            <dt>Mouv</dt>
+                            <dd>
+                                <span class="player-stat-value">{{ currentPlayer.movementPointsLeft }}</span>
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <dl class="player-resource-stats">
+                        <div class="player-resource-row">
+                            <dt>Sanctuaire</dt>
+                            <dd>{{ currentPlayer.combatSanctuaryPointsLeft }}</dd>
+                        </div>
+                        <div class="player-resource-row">
+                            <dt>Actions restantes</dt>
+                            <dd>{{ currentPlayer.actionsLeft }}</dd>
+                        </div>
+                    </dl>
+                </div>
+                } @else {
+                <p class="empty-state">Les informations du joueur courant ne sont pas encore disponibles.</p>
+                }
+            </div>
+
+            <button type="button" class="abandon-button abandon-button-standalone" (click)="openAbandonConfirm()">Abandonner la partie</button>
+        </aside>
+
+        <section class="board-panel">
+            @if (errors.length > 0) {
+            <div class="error-box">
+                @for (error of errors; track $index) {
+                <p>{{ error }}</p>
+                }
+            </div>
+            }
+
+            <div class="board-actions-bar panel-card panel-card-focus">
+                <button
+                    type="button"
+                    class="primary-button action-button board-action-button"
+                    [disabled]="!canToggleActionButton"
+                    [class.active]="actionPrimed"
+                    [class.obvious-action]="shouldHighlightObviousAction"
+                    (click)="toggleActionMode()"
+                >
+                    <span class="btn-icon btn-icon--sword" aria-hidden="true"></span>
+                    <span>{{ actionPrimed ? 'Action prete' : 'Preparer une action' }}</span>
+                </button>
+                <button
+                    type="button"
+                    class="secondary-button end-turn-button board-action-button"
+                    [disabled]="!canRequestTurnEnd"
+                    (click)="finishTurnEarly()"
+                >
+                    <span class="btn-icon btn-icon--check" aria-hidden="true"></span>
+                    <span>Terminer le tour</span>
+                </button>
+                @if (actionButtonHint) {
+                <p class="action-button-hint">{{ actionButtonHint }}</p>
+                }
+            </div>
+
+            <div class="board-frame">
+                @if (boardCells.length > 0) {
+                <div class="board-surface">
+                    <app-game-grid
+                        class="read-only-grid"
+                        [class.action-ready]="actionPrimed"
+                        [gridSize]="boardGridSize"
+                        [cells]="boardCells"
+                        [players]="boardPlayers"
+                        [isCtfMode]="isCtfMode"
+                        [reachableCells]="reachableBoardCells"
+                        [actionTargetCells]="actionTargetBoardCells"
+                        [selectedCell]="inspectedCell"
+                        [allowLeftDrag]="false"
+                        (cellClicked)="onBoardCellClicked($event)"
+                        (cellRightClicked)="onBoardCellRightClicked($event)"
+                    ></app-game-grid>
+                </div>
+                } @else {
+                <div class="board-surface board-placeholder">
+                    <p>Chargement de la carte...</p>
+                </div>
+                }
+            </div>
+        </section>
+
+        @if (gamePageInspectionService.hasInspectionPopover(inspectedCell)) {
+        <div
+            class="inspection-popover"
+            [style.left.px]="inspectionPopoverPosition.left"
+            [style.top.px]="inspectionPopoverPosition.top"
+            (click)="$event.stopPropagation()"
+        >
+            <div class="inspection-popover-header">
+                <p>Case ({{ inspectedCell?.row }}, {{ inspectedCell?.column }})</p>
+                <button type="button" class="inspection-close-button" (click)="closeInspectionPopover()">Fermer</button>
+            </div>
+
+            <dl class="inspection-popover-list">
+                <div>
+                    <dt>Tuile</dt>
+                    <dd>{{ gamePageInspectionService.describeTile(inspectedCell?.tile).label }}</dd>
+                </div>
+                <div>
+                    <dt>Cout</dt>
+                    <dd>{{ gamePageInspectionService.describeTile(inspectedCell?.tile).cost }}</dd>
+                </div>
+                <div class="inspection-popover-detail">
+                    <dt>Effet</dt>
+                    <dd>{{ gamePageInspectionService.describeTile(inspectedCell?.tile).effect }}</dd>
+                </div>
+                <div>
+                    <dt>Objet</dt>
+                    <dd>{{ gamePageInspectionService.getObjectLabel(inspectedCell?.object) }}</dd>
+                </div>
+                <div class="inspection-popover-detail">
+                    <dt>Effet obj.</dt>
+                    <dd>{{ gamePageInspectionService.getObjectEffect(inspectedCell?.object) }}</dd>
+                </div>
+                <div>
+                    <dt>Joueur</dt>
+                    <dd>{{ inspectedPlayer?.name ?? 'Aucun joueur' }}</dd>
+                </div>
+                @if (inspectedPlayer?.avatarImageUrl) {
+                <div class="inspection-player-preview">
+                    <dt>Avatar</dt>
+                    <dd>
+                        <img
+                            class="inspection-player-avatar"
+                            [src]="inspectedPlayer?.avatarImageUrl ?? ''"
+                            [alt]="'Avatar de ' + (inspectedPlayer?.name ?? 'Aucun joueur')"
+                        />
+                    </dd>
+                </div>
+                }
+            </dl>
+        </div>
+        }
+
+        <aside class="side-panel">
+            <div class="side-panel-top">
+                <header class="top-bar">
+                    <div class="top-bar-timer" [ngClass]="countdownState">
+                        <span class="top-bar-timer-label">{{ countdownLabel }}</span>
+                        <span class="top-bar-timer-value">{{ countdownValueLabel }}</span>
+                    </div>
+                    <button type="button" class="help-button" aria-label="Ouvrir l'aide de jeu" (click)="openHelpModal()">?</button>
+                </header>
+
+                <div class="panel-card panel-card-secondary compact-panel players-order-card">
+                    <h2>ORDRE DES JOUEURS</h2>
+
+                    <div class="players-list" #playersListContainer>
+                        @for (player of orderedPlayers; track player.id) {
+                        <div
+                            class="player-row"
+                            [class.active]="gamePagePlayerService.isActivePlayer(activePlayer, player.id)"
+                            [class.abandoned]="gamePagePlayerService.isPlayerAbandoned(session, player.id)"
+                        >
+                            <div class="player-row-main">
+                                <div class="player-row-heading">
+                                    <p class="player-name">{{ player.name }}</p>
+                                    <div class="player-tags">
+                                        @if (player.hasFlag) {
+                                        <span class="player-tag flag-tag">Drapeau</span>
+                                        } @if (player.team) {
+                                        <span class="player-tag team-tag team-tag-{{ player.team | lowercase }}">Équipe {{ player.team }}</span>
+                                        } @if (gamePagePlayerService.isActivePlayer(activePlayer, player.id)) {
+                                        <span class="player-tag active-turn-tag">En tour</span>
+                                        } @if (gamePagePlayerService.isOrganizer(session, player.id)) {
+                                        <span class="player-tag host-tag">Organisateur</span>
+                                        } @if ( !gamePagePlayerService.isOrganizer(session, player.id) ||
+                                        gamePagePlayerService.isVirtualPlayer(player) ) {
+                                        <span
+                                            class="player-tag"
+                                            [class.virtual-tag]="gamePagePlayerService.isVirtualPlayer(player)"
+                                            [class.virtual-tag--offensive]="gamePagePlayerService.isVirtualPlayerOffensive(player)"
+                                            [class.virtual-tag--defensive]="gamePagePlayerService.isVirtualPlayerDefensive(player)"
+                                            [class.human-tag]="!gamePagePlayerService.isVirtualPlayer(player)"
+                                        >
+                                            {{ gamePagePlayerService.getPlayerTypeLabel(player) }}
+                                        </span>
+                                        }
+                                    </div>
+                                </div>
+                                @if (gamePagePlayerService.isPlayerAbandoned(session, player.id)) {
+                                <p class="player-meta">
+                                    <span>A abandonne</span>
+                                </p>
+                                }
+                            </div>
+                            <span class="wins-chip">{{ getCombatWinsLabel(player.combatsWon) }}</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card panel-card-muted messages-card">
+                <div class="messages-card-header">
+                    <div class="messages-tabs" aria-label="Onglets de la zone des messages">
+                        <button
+                            type="button"
+                            class="messages-tab-button"
+                            [class.active]="activeMessagesTab === 'chat'"
+                            (click)="selectMessagesTab('chat')"
+                        >
+                            Chat
+                        </button>
+                        <button
+                            type="button"
+                            class="messages-tab-button"
+                            [class.active]="activeMessagesTab === 'journal'"
+                            (click)="selectMessagesTab('journal')"
+                        >
+                            Journal
+                        </button>
+                    </div>
+                </div>
+
+                    <div class="messages-card-body">
+                    @if (activeMessagesTab === 'chat') {
+                    <app-chat-zone
+                        [roomId]="roomId"
+                        [currentUser]="currentUserName"
+                        [isAbandoned]="gamePageStateService.isCurrentPlayerAbandoned(currentPlayer)"
+                        [playerId]="currentUserId"
+                    ></app-chat-zone>
+                    } @else {
+                    <app-game-journal [messages]="messages" [players]="session?.players ?? []"></app-game-journal>
+                    }
+                </div>
+            </div>
+        </aside>
     </section>
 </div>

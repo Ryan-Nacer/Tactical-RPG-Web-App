@@ -1,7 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TileId, ObjectId, Mode, Game, GameCell } from '@common/game';
+import { TileId, ObjectId, Mode, Game, GameCell, GridSize } from '@common/game';
 import { GameCardComponent } from './game-card.component';
 
+/**
+ * Strategie :
+ * - tester GameCardComponent comme carte de synthese reutilisee par les vues de selection
+ *   et d'administration
+ * - verifier surtout le passage des donnees de jeu et les elements rendus
+ *
+ * Cas limites cibles :
+ * - jeu visible ou invisible
+ * - grille miniature avec plusieurs types de tuiles et objets
+ */
 describe('GameCardComponent', () => {
     let component: GameCardComponent;
     let fixture: ComponentFixture<GameCardComponent>;
@@ -23,7 +33,7 @@ describe('GameCardComponent', () => {
         name: 'Test Game',
         description: 'A test game',
         mode: Mode.Classic,
-        size: '100MB',
+        size: GridSize.Small,
         lastModified: '2026-01-25',
         imageURL: 'http://example.com/image.jpg',
         isVisible: true,

@@ -2,11 +2,26 @@ import { Games } from '@app/model/database/game';
 import { GameCellDto } from '@app/model/dto/game/game-cell.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { UpdateGameDtoMapper } from '@app/model/dto/mappers/update-game-dto-mapper';
-import { TileId, Mode } from '@common/game';
+import { TileId, Mode, GridSize } from '@common/game';
 
+/**
+ * Strategie :
+ * - verifier que le mapper de mise a jour reste fidele aux champs fournis sans
+ *   imposer de valeur par defaut destructive sur les mises a jour partielles
+ * - verifier que les champs collection restent normalises, car ce sont eux qui
+ *   cassent le plus facilement les PATCH quand ils deviennent `undefined`
+ *
+ * Cas limites cibles :
+ * - mapping partiel avec cellules presentes : une mise a jour ne doit pas perdre
+ *   les donnees explicitement envoyees par le client
+ * - modele source sans cellules : la normalisation vers `[]` evite de disperser
+ *   des checks `undefined` dans les couches suivantes
+ *
+ * Ces cas evitent les regressions silencieuses lors des mises a jour partielles de jeux.
+ */
 describe('UpdateGameDtoMapper', () => {
     const gameName = 'Test Game';
-    const gameSize = '10';
+    const gameSize = GridSize.Small;
     const gameDescription = 'Description';
 
     it('toModel should map dto to partial model', () => {

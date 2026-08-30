@@ -3,12 +3,24 @@ import { GameCellDto } from '@app/model/dto/game/game-cell.dto';
 import { GAME_NAME_MAX_LENGTH } from '@app/model/dto/game/game.dto.constants';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { TileId, Mode } from '@common/game';
+import { TileId, Mode, GridSize } from '@common/game';
 
+/**
+ * Strategie :
+ * - verifier que CreateGameDto accepte une requete complete valide
+ * - verifier que les contraintes de validation rejettent les champs minimaux invalides
+ *
+ * Cas limites cibles :
+ * - taille absente
+ * - nom plus long que la limite permise
+ * - cellule imbriquee avec une tuile invalide
+ *
+ * Ces cas protegent l'entree HTTP avant que le service ne traite les donnees.
+ */
 describe('CreateGameDto', () => {
     const gameId = 'game-1';
     const gameName = 'Test Game';
-    const gameSize = '10';
+    const gameSize = GridSize.Small;
     const gameDescription = 'Description';
 
     it('should validate a complete dto with nested cells', async () => {

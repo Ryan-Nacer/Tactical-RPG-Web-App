@@ -1,76 +1,210 @@
 .form-container {
-    padding: 20px;
-}
-
-.sectionHeader {
-    margin-bottom: 20px;
-
-    h2 {
-        margin: 0;
-        font-size: 20px;
-    }
+    padding: 0;
+    color: #2f241d;
 }
 
 .formCard {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
+    padding: 22px;
+    border-radius: 18px;
+    border: 1px solid rgba(111, 79, 35, 0.48);
+    background: repeating-linear-gradient(0deg, rgba(78, 59, 49, 0.03) 0 2px, rgba(255, 255, 255, 0.03) 2px 4px),
+        linear-gradient(180deg, rgba(255, 247, 226, 0.98), rgba(239, 227, 200, 0.96));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.68),
+        inset 0 0 0 2px rgba(198, 157, 88, 0.18),
+        0 14px 28px rgba(42, 24, 13, 0.18);
 }
 
 .block {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
+}
+
+.block-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .blockLabel {
+    color: #442b18;
+    font-size: 1.08rem;
+    font-weight: 800;
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: 0.02em;
+}
+
+.blockHint {
+    margin: 0;
+    color: #705540;
+    font-size: 0.9rem;
+    line-height: 1.4;
     font-weight: 600;
-    font-size: 16px;
 }
 
 .choices {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+}
+
+.choices-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .choice {
+    position: relative;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-start;
+    gap: 14px;
     cursor: pointer;
+}
 
-    input[type='radio'] {
-        cursor: pointer;
-    }
+.choice input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
 
-    span {
-        cursor: pointer;
-    }
+.choice-card {
+    padding: 16px 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(111, 79, 35, 0.28);
+    background: linear-gradient(180deg, rgba(252, 247, 236, 0.98), rgba(243, 234, 214, 0.95));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.78),
+        0 7px 14px rgba(54, 34, 20, 0.08);
+    transition:
+        transform 160ms ease,
+        box-shadow 160ms ease,
+        border-color 160ms ease,
+        background 160ms ease;
+}
+
+.choice-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(182, 139, 67, 0.6);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.82),
+        0 12px 20px rgba(54, 34, 20, 0.12);
+}
+
+.choice-card.selected {
+    border-color: rgba(182, 139, 67, 0.82);
+    background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.18), transparent 36%),
+        linear-gradient(180deg, rgba(251, 241, 214, 0.98), rgba(239, 222, 180, 0.96));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 251, 236, 0.88),
+        0 0 0 2px rgba(212, 175, 55, 0.18),
+        0 14px 22px rgba(71, 49, 24, 0.15);
+}
+
+.choice-indicator {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    border-radius: 999px;
+    flex: 0 0 auto;
+    border: 2px solid rgba(137, 102, 55, 0.76);
+    background: rgba(255, 250, 239, 0.9);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76);
+}
+
+.choice-card.selected .choice-indicator {
+    border-color: rgba(156, 112, 45, 0.9);
+    background: radial-gradient(circle at center, rgba(196, 151, 62, 1) 0 42%, rgba(255, 245, 223, 0.96) 46% 100%);
+}
+
+.choice-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.choice-title {
+    color: #342216;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.choice-description {
+    color: #694f3a;
+    font-size: 0.88rem;
+    line-height: 1.42;
+    font-weight: 600;
 }
 
 .divider {
-    border: none;
-    border-top: 1px solid #ddd;
-    margin: 10px 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(111, 79, 35, 0.35), transparent);
 }
 
 .actions {
     display: flex;
-    gap: 10px;
-    margin-top: 20px;
+    justify-content: flex-end;
+    margin-top: 4px;
 }
 
 .primaryBtn {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
+    min-width: 190px;
+    padding: 12px 20px;
+    border: 1px solid #7c5f48;
+    border-radius: 999px;
+    font-size: 0.98rem;
+    font-weight: 800;
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: 0.05em;
+    color: #4b3426;
     cursor: pointer;
-    font-size: 14px;
+    background: linear-gradient(180deg, #f3e5ce 0%, #e7d7bc 55%, #dac7a8 100%),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0 2px, rgba(78, 59, 49, 0.05) 2px 4px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 245, 226, 0.8),
+        inset 0 -1px 0 rgba(78, 59, 49, 0.25),
+        0 6px 14px rgba(0, 0, 0, 0.18);
+    transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        filter 0.16s ease;
+}
 
-    &:hover {
-        background-color: #0056b3;
+.primaryBtn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.03);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 248, 234, 0.88),
+        0 12px 20px rgba(54, 34, 20, 0.24);
+}
+
+.primaryBtn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 720px) {
+    .form-container {
+        padding: 0;
+    }
+
+    .formCard {
+        padding: 18px;
+    }
+
+    .choices-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .actions {
+        justify-content: stretch;
+    }
+
+    .primaryBtn {
+        width: 100%;
     }
 }

@@ -1,0 +1,44 @@
+<main class="rooms-section">
+    <div class="room-grid">
+        @if (rooms.length === 0) {
+        <article class="empty-room-state">
+            <h2>Aucune partie disponible</h2>
+            <p>Aucune partie n'a encore été créée pour le moment.</p>
+            <p>Demandez à un organisateur de créer une partie, puis revenez ici pour la joindre.</p>
+        </article>
+        } @for(room of rooms; track room.roomId){
+        <article class="room-card">
+            <div class="room-card-header">
+                <h2>{{ room.gameName }}</h2>
+                <span class="room-status">En attente</span>
+            </div>
+
+            <div class="room-mode">
+                <span class="mode-badge" [class.ctf]="room.mode === 'CTF'">
+                    {{ room.mode === 'CTF' ? '🚩 CTF' : '⚔️ Classic' }}
+                </span>
+            </div>
+
+            <p class="room-host">👑 {{ room.hostName }}</p>
+
+            <div class="room-players">
+                <span> 👥 Joueurs </span>
+                <span>{{ room.currentPlayers }}/{{ room.maxPlayers }}</span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progess-fill" [style.width.%]="getProgressPercentage(room)"></div>
+            </div>
+            <p class="remaning-places">{{ getRemainingPlaces(room) }} places restantes</p>
+            <button
+                class="join-button"
+                type="button"
+                [routerLink]="['/character-creation']"
+                [queryParams]="{ host: false, room: room.roomId, gameName: room.gameName, mode: room.mode }"
+            >
+                Joindre →
+            </button>
+        </article>
+        }
+    </div>
+</main>

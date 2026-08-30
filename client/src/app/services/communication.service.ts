@@ -4,6 +4,7 @@ import { Message } from '@common/message';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { JoinableRoomSummary } from '@common/wait-room';
 
 @Injectable({
     providedIn: 'root',
@@ -23,5 +24,11 @@ export class CommunicationService {
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);
+    }
+
+    getJoinableRooms(): Observable<JoinableRoomSummary[]> {
+        return this.http
+            .get<JoinableRoomSummary[]>(`${this.baseUrl}/rooms/joinable`)
+            .pipe(catchError(this.handleError<JoinableRoomSummary[]>('getJoinableRooms', [])));
     }
 }

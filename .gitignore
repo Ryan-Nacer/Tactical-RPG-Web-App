@@ -1,6 +1,7 @@
 #ignoring .vscode folder but we keep some files for debuging
 /.vscode/chrome
 /.vs/
+/.tmp/
 
 package-lock.json
 .DS_Store
@@ -10,3 +11,7 @@ coverage/
 
 #Node Modules
 /node_modules
+.devenv
+*.nix
+.pre-commit-config.yaml
+devenv.lock

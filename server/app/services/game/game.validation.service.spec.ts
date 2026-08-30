@@ -3,19 +3,54 @@ import { GameCellDto } from '@app/model/dto/game/game-cell.dto';
 import { GameValidationService } from '@app/services/game/game.validation.service';
 import { BadRequestException } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { TileId, ObjectId, Mode } from '@common/game';
+import { DoorState, GridSize, Mode, ObjectId, ShrinePart, TileId } from '@common/game';
 
+/**
+ * Strategie :
+ * - isoler la logique de validation metier du reste du service de jeu
+ * - verifier les cas valides nominaux pour eviter des faux positifs
+ * - verifier des cas limites explicites qui devraient etre rejetes avant l'acces a la base
+ *
+ * Cas limites cibles :
+ * - nom et description vides
+ * - unicite du nom a la creation et a la mise a jour
+ * - placements invalides de portes, points de depart et drapeau
+ *
+ * Ces cas sont critiques car ils representent les donnees minimales ou invalides que
+ * le client peut envoyer, et qu'on veut bloquer le plus tot possible cote serveur.
+ */
 describe('GameValidationService', () => {
     let service: GameValidationService;
     let gameModel: { findOne: jest.Mock };
     const numericLargeGridSize = 20;
+    const secondShrineOrigin = 3;
 
-    const createCell = (row: number, column: number, tile: TileId, object?: ObjectId): GameCellDto => ({
+    /* eslint-disable max-params */
+    const createCell = (
+        row: number,
+        column: number,
+        tile: TileId,
+        object?: ObjectId,
+        doorState?: DoorState,
+        shrineId?: string,
+        shrinePart?: ShrinePart,
+    ): GameCellDto => ({
         row,
         column,
         tile,
         object,
+        doorState,
+        shrineId,
+        shrinePart,
     });
+    /* eslint-enable max-params */
+
+    const createShrineCells = (object: ObjectId.Heal | ObjectId.Combat, shrineId = 'shrine-1', originRow = 0, originColumn = 0): GameCellDto[] => [
+        createCell(originRow, originColumn, TileId.Base, object, undefined, shrineId, ShrinePart.TopLeft),
+        createCell(originRow, originColumn + 1, TileId.Base, object, undefined, shrineId, ShrinePart.TopRight),
+        createCell(originRow + 1, originColumn, TileId.Base, object, undefined, shrineId, ShrinePart.BottomLeft),
+        createCell(originRow + 1, originColumn + 1, TileId.Base, object, undefined, shrineId, ShrinePart.BottomRight),
+    ];
 
     beforeEach(() => {
         gameModel = { findOne: jest.fn() };
@@ -76,7 +111,7 @@ describe('GameValidationService', () => {
 
     it('checkDoors should accept valid door placement', () => {
         const cells = [
-            createCell(1, 1, TileId.Door),
+            createCell(1, 1, TileId.Door, undefined, DoorState.Closed),
             createCell(1, 0, TileId.Wall),
             createCell(1, 2, TileId.Wall),
             createCell(0, 1, TileId.Base),
@@ -88,7 +123,7 @@ describe('GameValidationService', () => {
 
     it('checkDoors should accept valid door placement with walls up/down', () => {
         const cells = [
-            createCell(1, 1, TileId.Door),
+            createCell(1, 1, TileId.Door, undefined, DoorState.Open),
             createCell(1, 0, TileId.Base),
             createCell(1, 2, TileId.Base),
             createCell(0, 1, TileId.Wall),
@@ -100,7 +135,7 @@ describe('GameValidationService', () => {
 
     it('checkDoors should throw for invalid door placement', () => {
         const cells = [
-            createCell(1, 1, TileId.Door),
+            createCell(1, 1, TileId.Door, undefined, DoorState.Closed),
             createCell(1, 0, TileId.Base),
             createCell(1, 2, TileId.Base),
             createCell(0, 1, TileId.Base),
@@ -108,6 +143,31 @@ describe('GameValidationService', () => {
         ];
 
         expect(() => service.checkDoors(cells)).toThrow(BadRequestException);
+    });
+
+    it('checkDoors should throw when a door is placed on the border', () => {
+        const cells = [
+            createCell(0, 1, TileId.Door, undefined, DoorState.Open),
+            createCell(0, 0, TileId.Wall),
+            createCell(0, 2, TileId.Wall),
+            createCell(1, 1, TileId.Base),
+            createCell(1, 0, TileId.Base),
+            createCell(1, 2, TileId.Base),
+        ];
+
+        expect(() => service.checkDoors(cells)).toThrow(BadRequestException);
+    });
+
+    it('checkDoors should keep accepting doors without doorState for backward compatibility', () => {
+        const cells = [
+            createCell(1, 1, TileId.Door),
+            createCell(1, 0, TileId.Wall),
+            createCell(1, 2, TileId.Wall),
+            createCell(0, 1, TileId.Base),
+            createCell(2, 1, TileId.Base),
+        ];
+
+        expect(() => service.checkDoors(cells)).not.toThrow();
     });
 
     it('checkTerrainCoverage should throw for empty grid', () => {
@@ -192,6 +252,47 @@ describe('GameValidationService', () => {
         expect(() => service.checkFlagPlacement(cells, undefined)).not.toThrow();
     });
 
+    it('checkShrines should accept a valid 2x2 shrine', () => {
+        const cells = createShrineCells(ObjectId.Heal);
+
+        expect(() => service.checkShrines(cells, GridSize.Small)).not.toThrow();
+    });
+
+    it('checkShrines should throw when shrine metadata is incomplete', () => {
+        const cells = [createCell(0, 0, TileId.Base, ObjectId.Heal)];
+
+        expect(() => service.checkShrines(cells, GridSize.Small)).toThrow(BadRequestException);
+    });
+
+    it('checkShrines should throw when a shrine does not form a 2x2 block', () => {
+        const cells = createShrineCells(ObjectId.Combat);
+        cells[3] = createCell(2, 2, TileId.Base, ObjectId.Combat, undefined, 'shrine-1', ShrinePart.BottomRight);
+
+        expect(() => service.checkShrines(cells, GridSize.Small)).toThrow(BadRequestException);
+    });
+
+    it('checkShrines should throw when a shrine cell is on a non-terrain tile', () => {
+        const cells = createShrineCells(ObjectId.Heal);
+        cells[0] = createCell(0, 0, TileId.Wall, ObjectId.Heal, undefined, 'shrine-1', ShrinePart.TopLeft);
+
+        expect(() => service.checkShrines(cells, GridSize.Small)).toThrow(BadRequestException);
+    });
+
+    it('checkShrines should throw when shrine metadata appears on a non-shrine object', () => {
+        const cells = [createCell(0, 0, TileId.Base, ObjectId.Start, undefined, 'shrine-1', ShrinePart.TopLeft)];
+
+        expect(() => service.checkShrines(cells, GridSize.Small)).toThrow(BadRequestException);
+    });
+
+    it('checkShrines should enforce the shared shrine limit by grid size', () => {
+        const cells = [
+            ...createShrineCells(ObjectId.Heal, 'shrine-1', 0, 0),
+            ...createShrineCells(ObjectId.Combat, 'shrine-2', secondShrineOrigin, secondShrineOrigin),
+        ];
+
+        expect(() => service.checkShrines(cells, GridSize.Small)).toThrow(BadRequestException);
+    });
+
     it('hasInaccessibleTiles should return when there is no start point', () => {
         const cells = [createCell(0, 0, TileId.Base)];
 
@@ -201,11 +302,11 @@ describe('GameValidationService', () => {
     it('hasInaccessibleTiles should ignore undefined queue items', () => {
         const cells = [createCell(0, 0, TileId.Base, ObjectId.Start)];
         const originalShift = Array.prototype.shift;
-        let firstCall = true;
+        let isFirstCall = true;
         const shiftSpy = jest.spyOn(Array.prototype, 'shift').mockImplementation(function (this: unknown[]) {
             const value = originalShift.call(this);
-            if (firstCall) {
-                firstCall = false;
+            if (isFirstCall) {
+                isFirstCall = false;
                 return undefined;
             }
             return value;
@@ -220,6 +321,27 @@ describe('GameValidationService', () => {
 
     it('hasInaccessibleTiles should throw when tiles are inaccessible', () => {
         const cells = [createCell(0, 0, TileId.Base, ObjectId.Start), createCell(0, 1, TileId.Wall), createCell(0, 2, TileId.Base)];
+
+        expect(() => service.hasInaccessibleTiles(cells)).toThrow(BadRequestException);
+    });
+
+    it('hasInaccessibleTiles should treat shrine cells as walls for map accessibility', () => {
+        const cells = [
+            createCell(0, 0, TileId.Base, ObjectId.Start),
+            createCell(1, 0, TileId.Base),
+            ...createShrineCells(ObjectId.Heal, 'shrine-1', 0, 1),
+            createCell(0, secondShrineOrigin, TileId.Base),
+        ];
+
+        expect(() => service.hasInaccessibleTiles(cells)).toThrow(BadRequestException);
+    });
+
+    it('hasInaccessibleTiles should throw when a shrine has no reachable adjacent tile', () => {
+        const cells = [
+            createCell(secondShrineOrigin, secondShrineOrigin, TileId.Base, ObjectId.Start),
+            createCell(secondShrineOrigin, 2, TileId.Base),
+            ...createShrineCells(ObjectId.Combat, 'shrine-1', 0, 0),
+        ];
 
         expect(() => service.hasInaccessibleTiles(cells)).toThrow(BadRequestException);
     });

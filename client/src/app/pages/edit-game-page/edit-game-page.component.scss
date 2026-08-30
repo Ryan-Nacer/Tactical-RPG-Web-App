@@ -1,352 +1,347 @@
+@use 'sass:meta';
+
 :host {
+    --font-title: 'Cinzel', 'Garamond', 'Times New Roman', serif;
+    --font-body: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    --parchment-50: #fbf4df;
+    --parchment-100: #f2e4c4;
+    --parchment-200: #e5d2a8;
+    --wood-700: #4f3825;
+    --wood-900: #2c1d12;
+    --gold-300: #e4ca86;
+    --gold-500: #b68b43;
+    --gold-700: #6f4f23;
+    --ink-900: #2b1d12;
+    --success-500: #2e7a3f;
+    --success-700: #1d552a;
+    --danger-500: #8d2d2b;
+    --danger-700: #5f1718;
+    --neutral-500: #6e604f;
+
+    --radius-xl: 18px;
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --shadow-panel: 0 16px 32px rgba(28, 16, 9, 0.45);
+    --shadow-soft: 0 8px 16px rgba(34, 20, 10, 0.28);
+    --shadow-pressed: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+    --transition-ui: 180ms ease;
+
     display: block;
-    height: 100%;
-    color: #e7e1d6;
-    font-family:
-        ui-sans-serif,
-        system-ui,
-        -apple-system,
-        Segoe UI,
-        Roboto,
-        Arial;
-}
-
-/* ===== Top title bar ===== */
-.pageTitle {
-    margin: 0;
-    padding: 14px 18px;
-    font-size: 16px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.25)), linear-gradient(180deg, #2b2723 0%, #141210 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-}
-
-/* ===== Main editor background + 3 columns ===== */
-.editorLayout {
-    height: calc(100% - 52px); /* leaves room for title */
-    display: grid;
-    grid-template-columns: 92px 1fr 340px; /* left palette / grid / right panel */
-    gap: 14px;
-    padding: 14px;
-
-    background: radial-gradient(1100px 650px at 50% 25%, rgba(255, 255, 255, 0.06), transparent 55%),
-        radial-gradient(900px 520px at 50% 90%, rgba(0, 0, 0, 0.55), transparent 70%), linear-gradient(180deg, #0b0b0c 0%, #111113 35%, #0a0a0b 100%);
-}
-
-/* ===== Left palette (icons only) ===== */
-.leftPalette {
-    border-radius: 12px;
-    padding: 10px;
-
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.18)), linear-gradient(180deg, #2b2723 0%, #1b1815 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-        0 10px 25px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-/* In left palette, toolbars are vertical */
-.leftPalette .toolBar {
-    display: grid;
-    grid-template-columns: 44px;
-    gap: 10px;
-    justify-content: center;
-}
-
-/* ===== Center grid frame ===== */
-.gridArea {
-    isolation: isolate;
+    min-height: 100vh;
     position: relative;
-    overflow: hidden;
-    border-radius: 16px;
-
-    /* make the outer rim thicker so you SEE it */
-    padding: 26px;
-
-    /* more contrast */
-    background: linear-gradient(180deg, #4a433b 0%, #1a1714 100%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-
-    box-shadow:
-        0 22px 55px rgba(0, 0, 0, 0.75),
-        inset 0 2px 0 rgba(255, 255, 255, 0.18),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.8);
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+    color: var(--ink-900);
+    font-family: var(--font-body);
+    background-image: url('../../../assets/images/edit-page-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
-/* BIG visible inner frame (double border + bevel) */
-.gridArea::before {
+:host::before {
     content: '';
-    position: absolute;
-
-    /* this inset defines the frame thickness */
-    inset: 12px;
-
-    border-radius: 12px;
-
-    /* strong double border */
-    border: 2px solid rgba(255, 255, 255, 0.2);
-
-    box-shadow:
-    /* inner dark stroke */
-        inset 0 0 0 3px rgba(0, 0, 0, 0.65),
-        /* faint inner highlight */ inset 0 0 0 4px rgba(255, 255, 255, 0.08),
-        /* bevel shading */ inset 0 18px 26px rgba(255, 255, 255, 0.06),
-        inset 0 -26px 34px rgba(0, 0, 0, 0.75);
-
-    pointer-events: none;
-    z-index: 0; /* IMPORTANT: puts the frame above the background */
-}
-
-/* vignette + corner accents */
-.gridArea::after {
-    content: '';
-    position: absolute;
+    position: fixed;
     inset: 0;
+    background: rgba(0, 0, 0, 0.18);
     pointer-events: none;
     z-index: 0;
 }
 
-/* make sure content stays above overlays */
-.gridArea .metaLine {
+/* page layout */
+.pageHeader {
     position: relative;
     z-index: 1;
-}
-
-/* optional: give the grid itself a visible border too */
-
-.metaLine {
-    margin: 10px 0 0;
-    font-size: 12px;
-    color: rgba(231, 225, 214, 0.7);
-}
-
-/* ===== Right panel ===== */
-.toolsPanel {
-    border-radius: 12px;
-    padding: 12px;
-
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)), linear-gradient(180deg, #2b2723 0%, #1b1815 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-        0 10px 25px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-
+    width: 100%;
+    height: 72px;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
     gap: 14px;
+    box-sizing: border-box;
+    padding: 0 22px;
+    color: #f3e5ce;
+    background: linear-gradient(180deg, rgba(52, 52, 56, 0.76), rgba(40, 40, 44, 0.8));
+    border-bottom: 1px solid rgba(78, 59, 49, 0.9);
+    box-shadow:
+        inset 0 0 24px rgba(0, 0, 0, 0.5),
+        inset 0 0 0 1px rgba(212, 175, 55, 0.16),
+        0 4px 14px rgba(0, 0, 0, 0.16);
 }
 
-/* Card sections on right */
-.toolSection {
-    border-radius: 10px;
-    padding: 12px;
-
-    background: rgba(0, 0, 0, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    z-index: 2;
-}
-
-.sectionTitle {
-    margin: 0 0 10px;
-    font-size: 13px;
-    letter-spacing: 0.7px;
+.pageTitle {
+    margin: 0;
+    font-size: 1.65rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: rgba(231, 225, 214, 0.9);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
 }
 
-/* ===== Inputs ===== */
-.formGroup {
+.helpButton {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    border: 1px solid rgba(228, 202, 134, 0.5);
+    background: linear-gradient(180deg, rgba(244, 227, 189, 0.95), rgba(192, 149, 73, 0.95));
+    box-shadow:
+        0 8px 16px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.48);
+    color: #4b2d16;
+    font-size: 1.45rem;
+    font-weight: 900;
+    line-height: 1;
+    transition:
+        transform var(--transition-ui),
+        box-shadow var(--transition-ui),
+        filter var(--transition-ui);
+}
+
+.helpButton:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow:
+        0 10px 18px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.helpButton:active {
+    transform: translateY(0);
+}
+
+.editorLayout {
+    position: relative;
+    z-index: 1;
+    height: calc(100vh - 72px);
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 200px minmax(520px, 1fr) 360px;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    align-items: stretch;
+    box-sizing: border-box;
+    isolation: isolate;
+    overflow: visible;
+}
+
+/* header */
+.sectionTitle {
+    margin: 0 0 0.85rem;
+    font-family: var(--font-title);
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #4b2d16;
+    border-bottom: 1px solid rgba(111, 79, 35, 0.35);
+    padding-bottom: 0.45rem;
+}
+
+/* left panel */
+.leftPalette,
+.toolsPanel {
+    border-radius: var(--radius-xl);
+    padding: 1rem;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+    overflow: visible;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.02)), linear-gradient(180deg, #f6e8c8 0%, #e5cfa0 100%);
+    border: 1px solid rgba(111, 79, 35, 0.75);
+    box-shadow:
+        var(--shadow-panel),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        inset 0 0 0 2px rgba(198, 157, 88, 0.28);
+}
+
+.leftPalette {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 12px;
+    justify-content: flex-start;
+    gap: 3rem;
+    align-self: stretch;
 }
 
-.formGroup label {
-    font-size: 12px;
-    font-weight: 700;
-    color: rgba(231, 225, 214, 0.85);
+.leftPalette .toolSection {
+    flex: 0 0 auto;
 }
 
-.formGroup input,
-.formGroup textarea {
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(0, 0, 0, 0.28);
-    color: rgba(231, 225, 214, 0.95);
-    padding: 10px;
-    outline: none;
+.toolSection {
+    position: relative;
+    overflow: visible;
+    background: linear-gradient(180deg, rgba(255, 247, 225, 0.9), rgba(234, 213, 166, 0.74));
+    border: 1px solid rgba(111, 79, 35, 0.45);
+    border-radius: var(--radius-lg);
+    padding: 0.68rem 0.72rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52);
 }
 
-.formGroup input:focus,
-.formGroup textarea:focus {
-    border-color: rgba(189, 166, 103, 0.7);
-    box-shadow: 0 0 0 3px rgba(189, 166, 103, 0.16);
+.leftPalette .sectionTitle {
+    margin-bottom: 0.58rem;
+    padding-bottom: 0.36rem;
 }
 
-/* ===== Icon buttons (used in left palette) ===== */
+.leftPalette .toolSection:last-child::after {
+    display: block;
+    margin-top: 0.58rem;
+    padding: 0.5rem 0.58rem;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(250, 229, 183, 0.95), rgba(230, 194, 126, 0.95));
+    border: 1px solid rgba(160, 115, 45, 0.45);
+    color: #5b3d1f;
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+.leftPalette .toolBar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.78rem;
+    justify-items: center;
+}
+
 .toolIconBtn {
     position: relative;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border-radius: 9px;
-
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.1)), linear-gradient(180deg, #3a342e, #24201b);
-
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 11px;
+    border: 1px solid rgba(126, 90, 43, 0.52);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(213, 185, 129, 0.4)), linear-gradient(180deg, #eedfbc, #d4b87c);
     box-shadow:
-        0 6px 14px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
-
+        var(--shadow-soft),
+        inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    padding: 0.1rem;
+    color: #472a15;
     cursor: pointer;
+    transition:
+        transform var(--transition-ui),
+        box-shadow var(--transition-ui),
+        border-color var(--transition-ui),
+        background-color var(--transition-ui);
 }
 
-.buttonDescription {
-    visibility: hidden;
-    display: inline;
-    white-space: pre;
-    position: absolute;
-    left: 100%;
-    // Les deux lignes suivantes mettent le centre de la description au centre du parent
-    top: 20%; // Pour une raison, le milieu du button est à 20%
-    transform: translateY(-50%);
-    transition: visibility 0s;
-    background: rgb(255, 254, 169);
-}
-.toolIconBtn:hover .buttonDescription {
-    visibility: visible;
-    transition-delay: 0.75s;
-}
-
-.toolIconBtn:hover {
-    filter: brightness(1.08);
-}
-
-/* active highlight (gold) */
-.toolIconBtn.active {
-    outline: 2px solid rgba(189, 166, 103, 0.95);
+.toolIconBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: rgba(182, 139, 67, 0.9);
     box-shadow:
-        0 10px 22px rgba(0, 0, 0, 0.55),
-        0 0 0 3px rgba(189, 166, 103, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        0 10px 20px rgba(72, 43, 18, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.toolIconBtn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: var(--shadow-pressed);
+}
+
+.toolIconBtn.active {
+    border-color: rgba(182, 139, 67, 1);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(245, 218, 155, 0.45)), linear-gradient(180deg, #ecdfc0, #d8bd8a);
+    box-shadow:
+        0 0 0 2px rgba(182, 139, 67, 0.38),
+        0 14px 24px rgba(62, 38, 19, 0.33),
+        inset 0 1px 0 rgba(255, 255, 255, 0.78);
 }
 
 .toolIconBtn.disabled,
 .toolIconBtn:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
+    opacity: 0.48;
     filter: grayscale(0.35);
+    cursor: not-allowed;
 }
 
-/* icon fills the whole button */
+.toolIcon,
+.toolIconImage {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    border: 1px solid rgba(111, 79, 35, 0.55);
+    background-color: #e9d1a1;
+}
+
 .toolIcon {
-    width: 100%;
-    height: 100%;
     display: block;
     background-repeat: no-repeat;
     background-position: center;
-    background-size: cover; /* use contain if you don’t want crop */
-    border-radius: 8px;
+    background-size: cover;
 }
 
-/* counts overlay */
+.toolIconImage {
+    display: block;
+    object-fit: contain;
+    object-position: center;
+    box-sizing: border-box;
+    padding: 0.12rem;
+}
+
+.toolIconImage.flag-tool-image {
+    transform: scale(1.25);
+    transform-origin: center;
+}
+
+.buttonDescription {
+    visibility: hidden;
+    margin: 0;
+    position: absolute;
+    left: calc(100% + 0.5rem);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    max-width: 320px;
+    min-width: 260px;
+    padding: 0.38rem 0.55rem;
+    border-radius: 7px;
+    border: 1px solid rgba(122, 86, 40, 0.7);
+    background: linear-gradient(180deg, #fff7df, #edd8a9);
+    box-shadow: 0 10px 18px rgba(42, 24, 13, 0.28);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #4e3119;
+    white-space: pre-wrap;
+    pointer-events: none;
+    opacity: 0;
+    transition:
+        opacity var(--transition-ui),
+        visibility 0ms linear var(--transition-ui);
+}
+
+.toolIconBtn:hover .buttonDescription,
+.toolIconBtn:focus-visible .buttonDescription {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 280ms;
+}
+
 .toolCount {
     position: absolute;
-    right: 4px;
-    bottom: 4px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
+    right: -0.15rem;
+    bottom: -0.15rem;
+    min-width: 1.2rem;
+    height: 1.2rem;
     border-radius: 999px;
-    font-size: 12px;
-    line-height: 18px;
+    padding: 0 0.28rem;
+    font-size: 0.68rem;
+    line-height: 1.2rem;
     text-align: center;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.78);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    pointer-events: none;
+    font-weight: 700;
+    color: #fff8e8;
+    background: linear-gradient(180deg, #4b3521, #2c1d12);
+    border: 1px solid rgba(244, 219, 162, 0.45);
 }
 
-/* label not used in left palette */
-.toolLabel {
-    display: none;
-}
+/* center board */
+@include meta.load-css('./edit-game-page.component.grid');
 
-/* ===== Actions buttons ===== */
-.actionButtons {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-}
+/* right panel */
+@include meta.load-css('./edit-game-page.component.panel');
 
-.primaryBtn,
-.secondaryBtn,
-.dangerBtn {
-    border-radius: 10px;
-    padding: 10px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: linear-gradient(180deg, #3a342e, #24201b);
-    color: rgba(231, 225, 214, 0.95);
-    cursor: pointer;
-}
+/* tool assets */
+@include meta.load-css('./edit-game-page.component.assets');
 
-.primaryBtn {
-    outline: 1px solid rgba(189, 166, 103, 0.35);
-}
-
-.dangerBtn {
-    background: linear-gradient(180deg, #3b1f1f, #221010);
-    outline: 1px solid rgba(255, 80, 80, 0.25);
-}
-
-.savingLine {
-    margin: 8px 0 0;
-    font-size: 12px;
-    color: rgba(231, 225, 214, 0.7);
-}
-
-/* ===== Your asset mappings ===== */
-/* Tiles */
-.toolIcon.base {
-    background-image: url('/assets/tiles/grass.png');
-}
-.toolIcon.wall {
-    background-image: url('/assets/tiles/wall.png');
-}
-.toolIcon.water {
-    background-image: url('/assets/tiles/water.png');
-}
-.toolIcon.ice {
-    background-image: url('/assets/tiles/ice.png');
-}
-.toolIcon.door {
-    background-image: url('/assets/tiles/door.png');
-}
-
-/* Objects */
-.toolIcon.start {
-    background-image: url('/assets/objects/depart.png');
-}
-.toolIcon.flag {
-    background-image: url('/assets/objects/flag.png');
-}
-.toolIcon.heal {
-    background-image: url('/assets/objects/health.png');
-}
-.toolIcon.combat {
-    background-image: url('/assets/objects/combat.png');
-}
+/* responsive */
+@include meta.load-css('./edit-game-page.component.responsive');

@@ -17,8 +17,8 @@ export class MatchCreationPageComponent implements OnDestroy {
     private readonly destroy$ = new Subject<void>();
 
     constructor(
-        private gameClientService: GameClientService,
-        private gameSocketService: GameSocketService,
+        private readonly gameClientService: GameClientService,
+        private readonly gameSocketService: GameSocketService,
     ) {
         this.getAllVisibleGames();
 
@@ -27,7 +27,7 @@ export class MatchCreationPageComponent implements OnDestroy {
         });
     }
 
-    getAllVisibleGames(): void {
+    private getAllVisibleGames(): void {
         this.gameClientService.getVisibleGames().subscribe({
             next: (games) => {
                 this.visibleGames = games;

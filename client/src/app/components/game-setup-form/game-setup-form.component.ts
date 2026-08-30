@@ -1,11 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
-export interface GameSetupData {
-    mode: 'CLASSIC' | 'CTF';
-    size: '10' | '15' | '20';
-}
+import { GameSetupData } from '@app/interfaces/game';
+import { GridSize, Mode } from '@common/game';
 
 @Component({
     selector: 'app-game-setup-form',
@@ -15,10 +12,13 @@ export interface GameSetupData {
     styleUrl: './game-setup-form.component.scss',
 })
 export class GameSetupFormComponent {
+    readonly modeEnum = Mode;
+    readonly gridSizeEnum = GridSize;
+
     @Output() formSubmitted = new EventEmitter<GameSetupData>();
 
-    mode: 'CLASSIC' | 'CTF' = 'CLASSIC';
-    size: '10' | '15' | '20' = '10';
+    mode: Mode = Mode.Classic;
+    size: GridSize = GridSize.Small;
 
     submit(): void {
         this.formSubmitted.emit({ mode: this.mode, size: this.size });

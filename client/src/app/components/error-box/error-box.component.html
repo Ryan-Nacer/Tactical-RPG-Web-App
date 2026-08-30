@@ -1,9 +1,10 @@
 @if (errors.length) {
-<div class="error-box" role="alert">
-    <p class="title">Erreurs</p>
-    <ul>
+<div class="error-box constraints-box" role="alert" aria-live="polite">
+    <ul class="constraint-list">
         @for (err of errors; track err) {
-        <li>{{ err }}</li>
+        <li class="constraint-item constraint-error">
+            <span class="constraint-text">{{ err }}</span>
+        </li>
         }
     </ul>
 </div>

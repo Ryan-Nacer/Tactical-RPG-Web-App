@@ -1,0 +1,514 @@
+:host {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: auto;
+}
+
+.combat-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: auto;
+    background:
+        radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 42%),
+        rgba(24, 18, 12, 0.72);
+    backdrop-filter: blur(4px);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    opacity: 1;
+    transition: opacity 320ms ease;
+}
+
+.combat-modal {
+    position: relative;
+    width: min(700px, 100%);
+    max-height: min(100%, calc(100dvh - 40px));
+    background:
+        radial-gradient(circle at top, rgba(212, 175, 55, 0.16), transparent 40%),
+        repeating-linear-gradient(0deg, rgba(78, 59, 49, 0.03) 0 2px, rgba(255, 255, 255, 0.03) 2px 4px),
+        linear-gradient(180deg, rgba(243, 234, 217, 0.98), rgba(229, 216, 193, 0.97));
+    border-radius: 20px;
+    border: 1px solid rgba(89, 65, 39, 0.88);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 249, 236, 0.82),
+        inset 0 0 0 1px rgba(212, 175, 55, 0.18),
+        0 28px 54px rgba(13, 9, 6, 0.34);
+    padding: 20px 20px 18px;
+    text-align: center;
+    overflow: auto;
+    transform: translateY(0) scale(1);
+    transition:
+        transform 320ms ease,
+        opacity 320ms ease;
+}
+
+.combat-result-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border: 1px solid #d14343;
+    border-radius: 999px;
+    background: #ffe9e9;
+    color: #b42318;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.combat-result-close-button:hover {
+    background: #ffd2d2;
+    border-color: #b42318;
+}
+
+.combat-overlay.exiting {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.combat-overlay.exiting .combat-modal {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+}
+
+.combat-modal h2 {
+    margin: 0;
+    color: #2f2116;
+    font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+    font-size: 1.26rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.combat-modal p {
+    margin: 0;
+    color: #5a4838;
+    font-weight: 600;
+}
+
+.combat-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(111, 84, 53, 0.18);
+}
+
+.combat-header-row h2 {
+    margin: 0;
+    text-align: left;
+}
+
+.combat-header-row .overlay-timer {
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.combat-title {
+    text-align: left;
+    padding: 7px 10px;
+    border-radius: 12px;
+    background: rgba(255, 249, 240, 0.56);
+    border: 1px solid rgba(122, 92, 54, 0.12);
+}
+
+.combat-title p {
+    margin: 0;
+    color: #4c3522;
+    font-size: 0.86rem;
+    letter-spacing: 0.02em;
+}
+
+.overlay-timer {
+    align-items: center;
+    width: min(22%, 122px);
+    min-width: 96px;
+    padding: 7px 8px;
+    border-radius: 14px;
+    background:
+        repeating-linear-gradient(0deg, rgba(78, 59, 49, 0.04) 0 2px, rgba(255, 255, 255, 0.03) 2px 4px),
+        linear-gradient(180deg, rgba(249, 233, 195, 0.99), rgba(232, 194, 120, 0.98));
+    border: 1px solid rgba(139, 101, 34, 0.82);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 245, 226, 0.72),
+        inset 0 -1px 0 rgba(78, 59, 49, 0.2),
+        0 8px 18px rgba(52, 33, 15, 0.16);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.overlay-timer-label {
+    color: #774600;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.overlay-timer-value {
+    color: #7b4100;
+    font-size: 1.14rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.overlay-timer.warning {
+    background:
+        repeating-linear-gradient(0deg, rgba(78, 59, 49, 0.03) 0 2px, rgba(255, 255, 255, 0.03) 2px 4px),
+        linear-gradient(180deg, rgba(250, 223, 169, 0.99), rgba(232, 176, 77, 0.98));
+    border-color: rgba(154, 91, 0, 0.5);
+}
+
+.overlay-timer.warning .overlay-timer-value {
+    color: #9a5b00;
+}
+
+.overlay-timer.danger {
+    background:
+        repeating-linear-gradient(0deg, rgba(78, 59, 49, 0.03) 0 2px, rgba(255, 255, 255, 0.03) 2px 4px),
+        linear-gradient(180deg, rgba(251, 209, 201, 0.99), rgba(236, 142, 125, 0.98));
+    border-color: rgba(179, 58, 46, 0.56);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 245, 226, 0.65),
+        0 0 0 1px rgba(179, 58, 46, 0.08),
+        0 10px 24px rgba(179, 58, 46, 0.16);
+}
+
+.overlay-timer.danger .overlay-timer-value {
+    color: #b33a2e;
+    animation: timer-pulse 0.9s ease-in-out infinite;
+}
+
+.posture-actions {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.posture-button {
+    border: 1px solid rgba(120, 90, 55, 0.4);
+    background:
+        linear-gradient(180deg, #f4ead8, #e9dcc9);
+    color: #4b3426;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 248, 234, 0.9),
+        0 6px 12px rgba(43, 30, 20, 0.1);
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+.posture-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: rgba(184, 139, 61, 0.76);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 248, 234, 0.96),
+        0 10px 18px rgba(43, 30, 20, 0.16);
+}
+
+.posture-button.selected {
+    border-color: #8a681a;
+    background: linear-gradient(180deg, #c49a2d, #a8821e);
+    color: #fff8e0;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 240, 180, 0.4),
+        0 0 8px rgba(212, 175, 55, 0.28);
+}
+
+.posture-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.selection-closed {
+    margin-top: 10px;
+    color: #8d2d2b;
+    font-weight: 700;
+    font-size: 0.88rem;
+}
+
+.combat-duel-view {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.combat-player-choice {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 14px;
+    background:
+        linear-gradient(180deg, rgba(255, 248, 236, 0.7), rgba(245, 234, 212, 0.76));
+    border: 1px solid rgba(111, 84, 53, 0.16);
+}
+
+.combat-choice-label {
+    margin: 0;
+    color: #3f2c1d;
+    font-weight: 700;
+    text-align: left;
+    font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+    letter-spacing: 0.03em;
+    font-size: 0.96rem;
+}
+
+@keyframes timer-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.04);
+    }
+}
+
+@media (max-width: 1120px), (max-height: 860px) {
+    .combat-overlay {
+        padding: 14px;
+    }
+
+    .combat-modal {
+        width: min(700px, 100%);
+        max-height: calc(100dvh - 28px);
+        padding: 18px 18px 16px;
+        border-radius: 18px;
+    }
+
+    .combat-modal h2 {
+        font-size: 1.18rem;
+    }
+
+    .combat-header-row {
+        gap: 12px;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+
+    .combat-title {
+        padding: 7px 10px;
+        border-radius: 12px;
+    }
+
+    .combat-title p {
+        font-size: 0.84rem;
+    }
+
+    .overlay-timer {
+        width: min(22%, 116px);
+        min-width: 96px;
+        padding: 6px 8px;
+        border-radius: 14px;
+    }
+
+    .overlay-timer-label {
+        font-size: 0.56rem;
+    }
+
+    .overlay-timer-value {
+        font-size: 1.08rem;
+    }
+
+    .combat-duel-view {
+        margin-top: 12px;
+        gap: 10px;
+    }
+
+    .combat-player-choice {
+        margin-top: 14px;
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .combat-choice-label {
+        font-size: 0.9rem;
+    }
+
+    .posture-actions {
+        margin-top: 12px;
+        gap: 8px;
+    }
+
+    .posture-button {
+        padding: 10px 12px;
+        font-size: 0.84rem;
+        border-radius: 10px;
+    }
+
+    .selection-closed {
+        margin-top: 10px;
+        font-size: 0.84rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .combat-overlay {
+        padding: 10px;
+    }
+
+    .combat-modal {
+        width: min(100%, 560px);
+        max-height: calc(100dvh - 20px);
+        padding: 14px 12px;
+        border-radius: 16px;
+    }
+
+    .combat-modal h2 {
+        font-size: 1.02rem;
+    }
+
+    .combat-header-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+    }
+
+    .combat-header-row .overlay-timer {
+        align-self: flex-end;
+    }
+
+    .overlay-timer {
+        align-self: flex-end;
+        width: auto;
+        min-width: 88px;
+        padding: 5px 7px;
+        border-radius: 12px;
+    }
+
+    .overlay-timer-label {
+        font-size: 0.52rem;
+    }
+
+    .overlay-timer-value {
+        font-size: 0.94rem;
+    }
+
+    .combat-title {
+        padding: 6px 8px;
+    }
+
+    .combat-title p {
+        font-size: 0.76rem;
+    }
+
+    .combat-duel-view {
+        grid-template-columns: 1fr;
+        margin-top: 10px;
+        gap: 8px;
+    }
+
+    .posture-actions {
+        grid-template-columns: 1fr;
+        margin-top: 10px;
+        gap: 6px;
+    }
+
+    .combat-player-choice {
+        margin-top: 12px;
+        padding: 10px;
+        border-radius: 12px;
+    }
+
+    .combat-choice-label,
+    .selection-closed,
+    .posture-button {
+        font-size: 0.78rem;
+    }
+
+    .posture-button {
+        padding: 9px 10px;
+    }
+}
+
+@media (max-width: 560px), (max-height: 700px) {
+    .combat-overlay {
+        padding: 6px;
+    }
+
+    .combat-modal {
+        width: min(100%, 460px);
+        max-height: calc(100dvh - 12px);
+        padding: 10px 9px;
+        border-radius: 12px;
+    }
+
+    .combat-modal h2 {
+        font-size: 0.9rem;
+        letter-spacing: 0.04em;
+    }
+
+    .combat-header-row {
+        gap: 6px;
+        margin-bottom: 6px;
+        padding-bottom: 6px;
+    }
+
+    .combat-title {
+        padding: 5px 6px;
+        border-radius: 10px;
+    }
+
+    .combat-title p {
+        font-size: 0.68rem;
+    }
+
+    .overlay-timer {
+        min-width: 76px;
+        padding: 4px 6px;
+        border-radius: 10px;
+    }
+
+    .overlay-timer-label {
+        font-size: 0.46rem;
+    }
+
+    .overlay-timer-value {
+        font-size: 0.82rem;
+    }
+
+    .combat-duel-view {
+        margin-top: 8px;
+        gap: 6px;
+    }
+
+    .combat-player-choice {
+        margin-top: 8px;
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+    .combat-choice-label {
+        font-size: 0.72rem;
+    }
+
+    .posture-actions {
+        margin-top: 8px;
+        gap: 5px;
+    }
+
+    .posture-button {
+        padding: 7px 8px;
+        font-size: 0.7rem;
+        border-radius: 8px;
+    }
+
+    .selection-closed {
+        margin-top: 8px;
+        font-size: 0.72rem;
+    }
+}

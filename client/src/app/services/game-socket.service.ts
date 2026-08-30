@@ -1,17 +1,20 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { GameListUpdatePayload } from '@app/interfaces/game';
 import { Observable, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { toSocketBaseUrl } from 'src/app/services/socket-url.util';
 import { environment } from 'src/environments/environment';
 
-export type GameListUpdateType = 'deleted' | 'visibility' | 'created';
-
-export interface GameListUpdatePayload {
-    type: GameListUpdateType;
-    gameId: string;
-    visible?: boolean;
-}
-
 const GAME_LIST_UPDATED_EVENT = 'gameListUpdated';
+
+export const gameSocketClientFactory = {
+    create(): Socket {
+        const socketUrl = toSocketBaseUrl(environment.serverUrl);
+        return io(socketUrl, {
+            transports: ['websocket'],
+        });
+    },
+};
 
 @Injectable({
     providedIn: 'root',
@@ -23,10 +26,7 @@ export class GameSocketService implements OnDestroy {
     readonly gameListUpdated$: Observable<GameListUpdatePayload> = this.listUpdatedSubject.asObservable();
 
     constructor() {
-        const socketUrl = environment.serverUrl.replace(/\/api\/?$/, '');
-        this.socket = io(socketUrl, {
-            transports: ['websocket'],
-        });
+        this.socket = gameSocketClientFactory.create();
 
         this.socket.on(GAME_LIST_UPDATED_EVENT, (payload: GameListUpdatePayload) => {
             this.listUpdatedSubject.next(payload);

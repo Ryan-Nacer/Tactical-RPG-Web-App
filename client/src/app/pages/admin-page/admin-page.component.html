@@ -1,43 +1,60 @@
-<header>
-    <h1>Page Administration des jeux</h1>
-</header>
+<main class="admin-main">
+    <div class="admin-main-toolbar">
+        <button class="create-button" type="button" (click)="openCreateForm()">Créer un nouveau jeu</button>
+    </div>
 
-<main>
     <h2 class="games-section-title">Jeux offerts</h2>
 
     @if (isLoading) {
     <div class="loading-message">
         <p>Chargement des jeux...</p>
     </div>
-    }
-
-    <div>
-        <button (click)="openCreateForm()">Créer un nouveau jeu</button>
-    </div>
-
-    @if (showCreateForm) {
+    } @if (showCreateForm) {
     <div class="modal-overlay" (click)="closeCreateForm()">
         <div class="modal-content" (click)="$event.stopPropagation()">
-            <button type="button" class="modal-close" (click)="closeCreateForm()" aria-label="Fermer">✕</button>
+            <button type="button" class="modal-close" (click)="closeCreateForm()" aria-label="Fermer">x</button>
             <app-game-setup-form (formSubmitted)="onFormSubmitted($event)"></app-game-setup-form>
         </div>
     </div>
+    } @if (pendingDeletionGame; as gameToDelete) {
+    <div class="modal-overlay" (click)="closeDeleteConfirmation()">
+        <div
+            class="modal-content delete-confirmation-modal"
+            (click)="$event.stopPropagation()"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-confirmation-title"
+        >
+            <button type="button" class="modal-close" (click)="closeDeleteConfirmation()" aria-label="Fermer">x</button>
+            <div class="delete-confirmation-content">
+                <p class="delete-confirmation-badge">Suppression definitive</p>
+                <p class="delete-confirmation-text">
+                    Vous etes sur le point de retirer <strong>{{ gameToDelete.name }}</strong> de la liste des jeux
+                </p>
+                <div class="delete-confirmation-actions">
+                    <button class="secondary" type="button" (click)="closeDeleteConfirmation()">Annuler</button>
+                    <button class="danger" type="button" (click)="confirmDeleteGame()">Oui, supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     }
 
     <div class="game-list">
         @if (!isLoading && games.length === 0) {
-        <p>Aucun jeu disponible. Créez-en un!</p>
+        <p class="empty-state">Aucun jeu disponible. Créez-en un!</p>
         } @for (game of games; track game.id){
         <div class="game">
             <app-game-card class="game-card" [game]="game"></app-game-card>
             <div class="game-actions">
-                <button type="button" [routerLink]="['/edit-game-page', game.id]">Éditer</button>
-                <button type="button" (click)="deleteGame(game.id)">Supprimer</button>
+                <button class="secondary" type="button" [routerLink]="['/edit-game-page', game.id]" [replaceUrl]="true">Éditer</button>
+                <button class="danger" type="button" (click)="requestDeleteGame(game)">Supprimer</button>
                 <div>
                     @if(game.isVisible){
-                    <button type="button" (click)="toggleVisibility(game)">Rendre le jeu invisible</button>
+                    <button class="ghost" type="button" (click)="toggleVisibility(game)">Rendre le jeu invisible</button>
                     }@else {
-                    <button type="button" (click)="toggleVisibility(game)">Rendre le jeu visible</button>
+                    <button class="ghost" type="button" (click)="toggleVisibility(game)">Rendre le jeu visible</button>
                     }
                 </div>
             </div>

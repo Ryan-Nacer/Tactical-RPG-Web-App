@@ -1,4 +1,9 @@
-<h1 class="pageTitle">Édition du jeu</h1>
+<header class="pageHeader">
+    <h1 class="pageTitle">Édition du jeu</h1>
+    <button type="button" class="helpButton" aria-label="Ouvrir l'aide de l'editeur" (click)="openHelpModal()">?</button>
+</header>
+
+<app-edit-help-modal [isOpen]="isHelpModalVisible" (closeRequested)="closeHelpModal()"></app-edit-help-modal>
 
 <div class="editorLayout">
     <aside class="leftPalette">
@@ -28,10 +33,14 @@
                     [disabled]="remainingMap[object] === 0"
                     (click)="setActiveTool(object)"
                 >
+                    @if (getToolImageSrc(object); as toolImageSrc) {
+                    <img class="toolIconImage" [class.flag-tool-image]="object === objectIdEnum.Flag" [src]="toolImageSrc" [alt]="object" />
+                    } @else {
                     <span [class]="`toolIcon ${object}`"></span>
+                    }
                     <span class="toolCount">{{ remainingMap[object] }}</span>
 
-                    <pre class="buttonDescription"></pre>
+                    <pre class="buttonDescription">{{ this.config.getToolDescription(object) }}</pre>
                 </button>
                 } }
             </div>
@@ -45,12 +54,16 @@
                 [cells]="game.cells"
                 [selectedCell]="selectedCell"
                 [allowLeftDrag]="isTileTool(activeTool)"
+                [placementPreview]="shrinePlacementPreview"
                 (cellClicked)="onCellClicked($event)"
                 (cellRightClicked)="onCellRightClicked($event)"
+                (cellHovered)="onGridCellHovered($event)"
             ></app-game-grid>
         </div>
 
-        <p class="metaLine">Game ID: {{ game.id }}</p>
+        @if (shrinePlacementMessage) {
+        <p class="previewLine" [class.invalid]="shrinePlacementPreview?.isValid === false">{{ shrinePlacementMessage }}</p>
+        }
     </section>
 
     <aside class="toolsPanel">
@@ -59,12 +72,18 @@
 
             <div class="formGroup">
                 <label for="game.name">Nom du jeu</label>
-                <input id="game.name" type="text" placeholder="Nom du jeu" [(ngModel)]="game.name" />
+                <input id="game.name" type="text" placeholder="Nom du jeu" [(ngModel)]="game.name" [maxlength]="config.getGameNameLimit()" />
             </div>
 
             <div class="formGroup">
                 <label for="game.description">Description</label>
-                <textarea id="game.description" rows="3" placeholder="Description du jeu" [(ngModel)]="game.description"></textarea>
+                <textarea
+                    id="game.description"
+                    rows="3"
+                    placeholder="Description du jeu"
+                    [(ngModel)]="game.description"
+                    [maxlength]="config.getGameDescriptionLimit()"
+                ></textarea>
             </div>
         </section>
 

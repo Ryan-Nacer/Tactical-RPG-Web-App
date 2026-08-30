@@ -1,10 +1,29 @@
-import { ADD_GAME_DESC, GAME_CREATED_MSG, MODIFY_GAME_DESC, NOT_FOUND_DESC, UNKNOWN_ERROR } from '@app/controllers/controller.constants';
+import { ADD_GAME_DESC, GAME_CREATED_MSG, MODIFY_GAME_DESC, NOT_FOUND_DESC } from '@app/controllers/controller.constants';
+import { getErrorMessage } from '@app/controllers/controller.utils';
 import { Games } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpException,
+    HttpStatus,
+    InternalServerErrorException,
+    NotFoundException,
+    Param,
+    Patch,
+    Post,
+} from '@nestjs/common';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+
+interface CreateGameResponse {
+    message: string;
+    id?: string;
+}
 
 @ApiTags('Games')
 @Controller('game')
@@ -16,7 +35,7 @@ export class GameController {
         try {
             return await this.gameServices.getAllGames();
         } catch (error) {
-            throw new HttpException(this.getErrorMessage(error), HttpStatus.NOT_FOUND);
+            this.rethrowAsInternalServerError(error);
         }
     }
 
@@ -25,7 +44,7 @@ export class GameController {
         try {
             return await this.gameServices.getVisibleGames();
         } catch (error) {
-            throw new HttpException(this.getErrorMessage(error), HttpStatus.NOT_FOUND);
+            this.rethrowAsInternalServerError(error);
         }
     }
 
@@ -37,7 +56,7 @@ export class GameController {
     @ApiNotFoundResponse({
         description: NOT_FOUND_DESC,
     })
-    async addGame(@Body() gameDto: CreateGameDto) {
+    async addGame(@Body() gameDto: CreateGameDto): Promise<CreateGameResponse> {
         try {
             await this.gameServices.addGame(gameDto);
             return { message: GAME_CREATED_MSG, id: gameDto.id };
@@ -45,7 +64,7 @@ export class GameController {
             if (error instanceof HttpException) {
                 throw error;
             }
-            throw new HttpException(this.getErrorMessage(error), HttpStatus.BAD_REQUEST);
+            this.rethrowAsInternalServerError(error);
         }
     }
 
@@ -59,9 +78,16 @@ export class GameController {
     @Get('/:id')
     async getGameById(@Param('id') id: string): Promise<Games> {
         try {
-            return await this.gameServices.getGame(id);
+            const game = await this.gameServices.getGame(id);
+            if (!game) {
+                throw new NotFoundException('Jeu introuvable.');
+            }
+            return game;
         } catch (error) {
-            throw new HttpException(this.getErrorMessage(error), HttpStatus.NOT_FOUND);
+            if (error instanceof HttpException) {
+                throw error;
+            }
+            this.rethrowAsInternalServerError(error);
         }
     }
 
@@ -73,7 +99,7 @@ export class GameController {
             if (error instanceof HttpException) {
                 throw error;
             }
-            throw new HttpException(this.getErrorMessage(error), HttpStatus.NOT_FOUND);
+            this.rethrowAsInternalServerError(error);
         }
     }
 
@@ -83,14 +109,14 @@ export class GameController {
         try {
             await this.gameServices.deleteGame(id);
         } catch (error) {
-            throw new HttpException(this.getErrorMessage(error), HttpStatus.NOT_FOUND);
+            if (error instanceof HttpException) {
+                throw error;
+            }
+            this.rethrowAsInternalServerError(error);
         }
     }
 
-    private getErrorMessage(error: unknown): string {
-        if (error instanceof Error) {
-            return error.message;
-        }
-        return UNKNOWN_ERROR;
+    private rethrowAsInternalServerError(error: unknown): never {
+        throw new InternalServerErrorException(getErrorMessage(error));
     }
 }

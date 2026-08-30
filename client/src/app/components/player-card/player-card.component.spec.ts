@@ -3,16 +3,19 @@ import { By } from '@angular/platform-browser';
 import { AvatarName, PlayerAvatar } from '@common/player';
 import { PlayerCardComponent } from './player-card.component';
 
-/**
- * Stratégie de tests :
- * Ce fichier teste PlayerCardComponent, qui affiche un avatar. On vérifie que les inputs
- * (imageUrl et avatarName) sont bien reçus et que le template se met à jour lorsque
- * ces valeurs changent.
- *
- * Les cas limites testés incluent l’affichage avec des valeurs vides ou nulles, afin de
- * s’assurer que le composant ne plante pas si les données reçues sont incomplètes.
- */
+const FIRST_INDEX = 0;
+const SECOND_INDEX = 1;
+const THIRD_INDEX = 2;
 
+/**
+ * Strategie :
+ * - tester PlayerCardComponent comme composant presentational recevant ses donnees par input
+ * - verifier le rendu et la mise a jour quand les inputs changent
+ *
+ * Cas limites cibles :
+ * - changement dynamique des inputs
+ * - compatibilite avec plusieurs avatars de reference
+ */
 describe('PlayerCardComponent', () => {
     let component: PlayerCardComponent;
     let fixture: ComponentFixture<PlayerCardComponent>;
@@ -61,7 +64,7 @@ describe('PlayerCardComponent', () => {
     });
 
     it('should accept imageUrl input from mock data', async () => {
-        const kenAvatar = mockPlayerAvatars[1];
+        const kenAvatar = mockPlayerAvatars[SECOND_INDEX];
         component.imageUrl = kenAvatar.imageUrl;
         fixture.detectChanges();
         await fixture.whenStable();
@@ -70,7 +73,7 @@ describe('PlayerCardComponent', () => {
     });
 
     it('should accept avatarName input from mock data', async () => {
-        const kenAvatar = mockPlayerAvatars[1];
+        const kenAvatar = mockPlayerAvatars[SECOND_INDEX];
         component.avatarName = kenAvatar.avatarName;
         fixture.detectChanges();
         await fixture.whenStable();
@@ -79,25 +82,28 @@ describe('PlayerCardComponent', () => {
     });
 
     it('should render avatar image with correct src', async () => {
-        component.imageUrl = mockPlayerAvatars[0].imageUrl;
+        component.imageUrl = mockPlayerAvatars[FIRST_INDEX].imageUrl;
         fixture.detectChanges();
         await fixture.whenStable();
 
         const imgElement = fixture.debugElement.query(By.css('img'));
         expect(imgElement?.nativeElement.src).toContain('barbie.png');
     });
-
+    /*
     it('should render avatar name', async () => {
-        component.avatarName = mockPlayerAvatars[0].avatarName;
+        component.avatarName = mockPlayerAvatars[FIRST_INDEX].avatarName;
         fixture.detectChanges();
         await fixture.whenStable();
 
         const nameElement = fixture.debugElement.query(By.css('.avatar-name'));
         expect(nameElement?.nativeElement.textContent).toContain('Barbie');
-    });
+    });*/
+    // je ne veux plus afficher les noms des avatars
+    //car je trouve que c'est mélangeant entre les noms des avatars
+    // et les noms des personnages
 
     it('should update when inputs change using mock data', async () => {
-        const nikkiAvatar = mockPlayerAvatars[2];
+        const nikkiAvatar = mockPlayerAvatars[THIRD_INDEX];
         component.imageUrl = nikkiAvatar.imageUrl;
         component.avatarName = nikkiAvatar.avatarName;
         fixture.detectChanges();
@@ -112,7 +118,6 @@ describe('PlayerCardComponent', () => {
 
     it('should work with all mock avatars', async () => {
         for (const avatar of mockPlayerAvatars) {
-            // Create a fresh component for each avatar to avoid change detection issues
             const tempFixture = TestBed.createComponent(PlayerCardComponent);
             const tempComponent = tempFixture.componentInstance;
 

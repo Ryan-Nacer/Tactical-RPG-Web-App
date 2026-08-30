@@ -1,19 +1,18 @@
-import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Config } from '@app/interfaces/config';
-import { PlayerAvatar } from '@common/player';
 import { Tool } from '@common/game';
+import { PlayerAvatar } from '@common/player';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ConfigService {
-    private http = inject(HttpClient);
     isLoaded = false;
     private config: Config;
 
-    constructor() {
-        this.http.get<Config>('../../assets/config.json').subscribe((data: Config) => {
+    constructor(private readonly http: HttpClient) {
+        this.http.get<Config>('assets/config.json').subscribe((data: Config) => {
             this.config = data;
 
             this.config.playerAvatars = this.config.playerAvatars.map((avatar) => ({
@@ -23,19 +22,14 @@ export class ConfigService {
             }));
 
             this.isLoaded = true;
-
-            this.config.toolDescriptionMap = data.toolDescriptionMap;
         });
     }
 
-    getConfig(): Config {
-        return this.config;
-    }
-    getTeamNames(): [string] {
+    getTeamNames(): string[] {
         return this.config.teamNames;
     }
     getLogoPath(): string {
-        return '../../assets/' + this.config.logo;
+        return 'assets/' + this.config.logo;
     }
 
     getTitle(): string {
@@ -51,5 +45,13 @@ export class ConfigService {
 
     private setPlayerImage(playerAvatar: PlayerAvatar): string {
         return 'assets/characters/' + playerAvatar.imageUrl;
+    }
+
+    getGameDescriptionLimit(): number {
+        return this.config.gameDescriptionLimit;
+    }
+
+    getGameNameLimit(): number {
+        return this.config.gameNameLimit;
     }
 }

@@ -9,7 +9,7 @@
     "target": "es2022",
     "sourceMap": true,
     "outDir": "out",
-    "baseUrl": "./",
+    "rootDir": "..",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -17,6 +17,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "types": ["jest", "node"],
     "paths": {
       "@common/*": ["../common/*"],
       "@app/*": ["./app/*"]

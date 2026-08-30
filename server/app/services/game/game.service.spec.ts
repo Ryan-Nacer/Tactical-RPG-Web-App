@@ -1,17 +1,33 @@
-import { GameGateway, GameListUpdateType } from '@app/gateways/game/game.gateway';
+import { GameGateway } from '@app/gateways/game/game.gateway';
+import { GameListUpdateType } from '@app/gateways/game/game.gateway.events';
 import { GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
 import { GameValidationService } from '@app/services/game/game.validation.service';
+import { GridSize, Mode } from '@common/game';
 import { BadRequestException, HttpException, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 
+/**
+ * Strategie :
+ * - tester GameService comme couche d'orchestration entre validation, modele Mongo et gateway
+ * - verifier le flot nominal (validation -> persistence -> emission)
+ * - verifier la propagation et la transformation des erreurs pour proteger le contrat serveur
+ *
+ * Cas limites cibles :
+ * - erreurs de validation agregees
+ * - jeu introuvable a la suppression ou a la mise a jour
+ * - erreurs non-HTTP provenant du modele, qui doivent etre reformattees proprement
+ *
+ * Ces cas sont importants parce que le service concentre la logique metier principale
+ * du Sprint 1 et decide quelles erreurs remonter aux couches superieures.
+ */
 describe('GameService', () => {
     const gameId = 'game-1';
     const gameName = 'Test Game';
-    const gameSize = '10';
-    const gameMode = 'CLASSIC';
+    const gameSize = GridSize.Small;
+    const gameMode = Mode.Classic;
     const httpStatusBadRequest = 400;
     const nonStringMessageValue = 123;
     const nonStringMessageItem = 3;
@@ -44,6 +60,7 @@ describe('GameService', () => {
             checkTerrainCoverage: jest.fn(),
             checkStartPoints: jest.fn(),
             checkFlagPlacement: jest.fn(),
+            checkShrines: jest.fn(),
             hasInaccessibleTiles: jest.fn(),
         } as unknown as jest.Mocked<GameValidationService>;
         gateway = { emitListUpdated: jest.fn() } as unknown as jest.Mocked<GameGateway>;
@@ -71,6 +88,7 @@ describe('GameService', () => {
         expect(validationService.checkTerrainCoverage).toHaveBeenCalledWith(dto.cells);
         expect(validationService.checkStartPoints).toHaveBeenCalledWith(dto.cells, dto.size);
         expect(validationService.checkFlagPlacement).toHaveBeenCalledWith(dto.cells, dto.mode);
+        expect(validationService.checkShrines).toHaveBeenCalledWith(dto.cells, dto.size);
         expect(validationService.hasInaccessibleTiles).toHaveBeenCalledWith(dto.cells);
         expect(gameModel.create).toHaveBeenCalledWith(dto);
         expect(gateway.emitListUpdated).toHaveBeenCalledWith({
@@ -134,6 +152,7 @@ describe('GameService', () => {
         expect(gameModel.findOne).toHaveBeenCalledWith({ id: gameId });
         expect(validationService.checkStartPoints).toHaveBeenCalledWith(update.cells, gameSize);
         expect(validationService.checkFlagPlacement).toHaveBeenCalledWith(update.cells, gameMode);
+        expect(validationService.checkShrines).toHaveBeenCalledWith(update.cells, gameSize);
     });
 
     it('updateGame should validate description when provided', async () => {
@@ -143,7 +162,7 @@ describe('GameService', () => {
         await service.updateGame(gameId, update);
 
         expect(validationService.checkDescriptionRequired).toHaveBeenCalledWith(update.description);
-        expect(gameModel.findOneAndUpdate).toHaveBeenCalledWith({ id: gameId }, { $set: update }, { new: true });
+        expect(gameModel.findOneAndUpdate).toHaveBeenCalledWith({ id: gameId }, { $set: { ...update, isVisible: false } }, { new: true });
     });
 
     it('updateGame should not load existing game when size and mode are provided', async () => {
@@ -155,6 +174,7 @@ describe('GameService', () => {
         expect(gameModel.findOne).not.toHaveBeenCalled();
         expect(validationService.checkStartPoints).toHaveBeenCalledWith(update.cells, gameSize);
         expect(validationService.checkFlagPlacement).toHaveBeenCalledWith(update.cells, gameMode);
+        expect(validationService.checkShrines).toHaveBeenCalledWith(update.cells, gameSize);
     });
 
     it('updateGame should load missing mode when size is provided', async () => {
@@ -167,6 +187,7 @@ describe('GameService', () => {
         expect(gameModel.findOne).toHaveBeenCalledWith({ id: gameId });
         expect(validationService.checkStartPoints).toHaveBeenCalledWith(update.cells, gameSize);
         expect(validationService.checkFlagPlacement).toHaveBeenCalledWith(update.cells, gameMode);
+        expect(validationService.checkShrines).toHaveBeenCalledWith(update.cells, gameSize);
     });
 
     it('getAllGames should return all games', async () => {
@@ -234,6 +255,20 @@ describe('GameService', () => {
         gameModel.findOneAndUpdate.mockRejectedValue(new Error('boom'));
 
         await expect(service.updateGame(gameId, update)).rejects.toThrow('Echec de la mise a jour du jeu. boom');
+    });
+
+    it('updateGame should reset visibility to false when editing game content', async () => {
+        const update: UpdateGameDto = { name: 'Updated name', isVisible: true };
+        gameModel.findOneAndUpdate.mockResolvedValue({ id: gameId });
+
+        await service.updateGame(gameId, update);
+
+        expect(gameModel.findOneAndUpdate).toHaveBeenCalledWith({ id: gameId }, { $set: { ...update, isVisible: false } }, { new: true });
+        expect(gateway.emitListUpdated).toHaveBeenCalledWith({
+            type: GameListUpdateType.Visibility,
+            gameId,
+            visible: false,
+        });
     });
 
     it('updateGame should throw BadRequestException when validation errors exist', async () => {

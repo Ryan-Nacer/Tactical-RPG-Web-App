@@ -1,0 +1,80 @@
+.messages-list {
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
+    padding: 2px 4px 2px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.message-line {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 11px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(252, 249, 243, 0.96), rgba(243, 237, 225, 0.94));
+    border: 1px solid rgba(112, 87, 58, 0.1);
+}
+
+.message-line.action {
+    background: linear-gradient(180deg, rgba(235, 242, 251, 0.98), rgba(224, 233, 246, 0.98));
+    color: #38506d;
+}
+
+.message-line.combat {
+    background: #fff4e8;
+    color: #67431c;
+}
+
+.message-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.message-time {
+    color: #61708b;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.message-type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(57, 83, 132, 0.1);
+    color: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.message-players {
+    color: #43526c;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.message-text {
+    color: inherit;
+    line-height: 1.4;
+}
+
+.empty-state {
+    margin: auto;
+    text-align: center;
+    color: #6a543e;
+    font-size: 0.88rem;
+    font-style: italic;
+    border: 1px dashed rgba(109, 83, 53, 0.34);
+    border-radius: 10px;
+    padding: 8px 10px;
+    background: rgba(255, 251, 243, 0.58);
+}

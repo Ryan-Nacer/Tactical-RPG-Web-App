@@ -1,0 +1,88 @@
+<div class="combat-overlay" [class.exiting]="isExiting" role="dialog" aria-modal="true" aria-label="Combat en cours">
+    <div class="combat-modal">
+        @if (isCombatActive) {
+        <div class="combat-header-row">
+            <h2>Combat en cours</h2>
+            <div class="overlay-timer" [ngClass]="overlayTimerState">
+                <span class="overlay-timer-label">Chrono</span>
+                <span class="overlay-timer-value">{{ formattedRemainingTime }}</span>
+            </div>
+        </div>
+
+        <div class="combat-title">
+            <p>{{ combatLabel }}</p>
+        </div>
+
+        <div class="combat-duel-view">
+            <app-combatant-stats-card
+                [name]="attackerName"
+                [avatarUrl]="attackerAvatarUrl"
+                [avatarAlt]="'Avatar de ' + attackerName"
+                [health]="attackerHealth"
+                [maxHealth]="attackerMaxHealth"
+                [damageTaken]="attackerDamageTaken"
+                [attackBase]="attackerAttackBase"
+                [defenseBase]="attackerDefenseBase"
+                [attackDiceResult]="attackerDiceResult"
+                [defenseDiceResult]="attackerDefenseDiceResult"
+                [attackPostureBonus]="attackerAttackPostureBonus"
+                [defensePostureBonus]="attackerDefensePostureBonus"
+                [attackPenalty]="attackerAttackPenalty"
+                [defensePenalty]="attackerDefensePenalty"
+                [attackTotal]="attackerAttackTotal"
+                [defenseTotal]="attackerDefenseTotal"
+                [damageDealt]="attackerDamageDealt"
+            />
+
+            <app-combatant-stats-card
+                [name]="defenderName"
+                [avatarUrl]="defenderAvatarUrl"
+                [avatarAlt]="'Avatar de ' + defenderName"
+                [health]="defenderHealth"
+                [maxHealth]="defenderMaxHealth"
+                [damageTaken]="defenderDamageTaken"
+                [attackBase]="defenderAttackBase"
+                [defenseBase]="defenderDefenseBase"
+                [attackDiceResult]="defenderDiceResult"
+                [defenseDiceResult]="defenderDefenseDiceResult"
+                [attackPostureBonus]="defenderAttackPostureBonus"
+                [defensePostureBonus]="defenderDefensePostureBonus"
+                [attackPenalty]="defenderAttackPenalty"
+                [defensePenalty]="defenderDefensePenalty"
+                [attackTotal]="defenderAttackTotal"
+                [defenseTotal]="defenderDefenseTotal"
+                [damageDealt]="defenderDamageDealt"
+            />
+        </div>
+
+        <div class="combat-player-choice">
+            <p class="combat-choice-label">Choisissez votre posture</p>
+            <div class="posture-actions">
+                <button
+                    type="button"
+                    class="posture-button"
+                    [class.selected]="isSelectedPosture(combatPosture.Offensive)"
+                    [disabled]="isSelectionClosed"
+                    (click)="choosePosture(combatPosture.Offensive)"
+                >
+                    Attaque (+{{ offensivePostureAttackBonus }} Att)
+                </button>
+
+                <button
+                    type="button"
+                    class="posture-button"
+                    [class.selected]="isSelectedPosture(combatPosture.Defensive)"
+                    [disabled]="isSelectionClosed"
+                    (click)="choosePosture(combatPosture.Defensive)"
+                >
+                    Defense (+{{ defensivePostureDefenseBonus }} Def)
+                </button>
+            </div>
+
+            @if (isSelectionClosed) {
+            <p class="selection-closed">Temps ecoule, posture verrouillee.</p>
+            }
+        </div>
+        }
+    </div>
+</div>

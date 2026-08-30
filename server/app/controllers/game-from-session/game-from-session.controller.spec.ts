@@ -1,70 +1,56 @@
 import { UNKNOWN_ERROR } from '@app/controllers/controller.constants';
-import { GameFromSessionController, SaveGameResponse } from '@app/controllers/game-from-session/game-from-session.controller';
+import { GameFromSessionController } from '@app/controllers/game-from-session/game-from-session.controller';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateGameDtoMapper } from '@app/model/dto/mappers/create-game-dto-mapper';
 import { GameService } from '@app/services/game/game.service';
+import { BadRequestException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TileId, ObjectId, Mode, Game, GameCell } from '@common/game';
+import { Game, GridSize, Mode, ObjectId, TileId } from '@common/game';
 
-let controller: GameFromSessionController;
-let gameService: jest.Mocked<GameService>;
-
+/**
+ * Strategie :
+ * - tester GameFromSessionController comme facade HTTP qui persiste un jeu cree depuis une session
+ * - verifier le mapping du payload et la propagation correcte des erreurs du service
+ *
+ * Cas limites cibles :
+ * - erreur de mapping avant l'appel au service
+ * - erreurs serveur typees et non typees lors de l'ajout
+ */
 describe('GameFromSessionController', () => {
-    const mockGameCells: GameCell[] = [
-        { row: 0, column: 0, tile: TileId.Base, object: ObjectId.Start },
-        { row: 0, column: 1, tile: TileId.Base },
-        { row: 0, column: 2, tile: TileId.Wall },
-        { row: 1, column: 0, tile: TileId.Base },
-        { row: 1, column: 1, tile: TileId.Water },
-        { row: 1, column: 2, tile: TileId.Door },
-        { row: 2, column: 0, tile: TileId.Ice },
-        { row: 2, column: 1, tile: TileId.Base },
-        { row: 2, column: 2, tile: TileId.Base, object: ObjectId.Flag },
-    ];
+    let controller: GameFromSessionController;
+    let gameService: jest.Mocked<Pick<GameService, 'addGame'>>;
 
-    const mockGames: Game[] = [
-        {
-            id: '1',
-            name: 'Test Game',
-            description: 'A test game',
-            mode: Mode.Classic,
-            size: '100MB',
-            lastModified: '2026-01-25',
-            imageURL: 'http://example.com/image.jpg',
-            isVisible: true,
-            cells: mockGameCells,
-        },
-        {
-            id: '2',
-            name: 'Test Game2',
-            description: 'A test game',
-            mode: Mode.CTF,
-            size: '100MB',
-            lastModified: '2026-01-25',
-            imageURL: 'http://example.com/image.jpg',
-            isVisible: false,
-            cells: mockGameCells,
-        },
-    ];
-
-    const baseGameFromSession = {
-        name: mockGames[0].name,
-        gameData: mockGames[0],
+    const mockGame: Game = {
+        id: '1',
+        name: 'Test Game',
+        description: 'A test game',
+        mode: Mode.Classic,
+        size: GridSize.Small,
+        lastModified: '2026-01-25',
+        isVisible: true,
+        cells: [
+            { row: 0, column: 0, tile: TileId.Base, object: ObjectId.Start },
+            { row: 0, column: 1, tile: TileId.Base },
+        ],
     };
 
-    const mockGameDto: CreateGameDto = {
-        id: mockGames[0].id,
-        name: mockGames[0].name,
-        description: mockGames[0].description,
-        mode: mockGames[0].mode,
-        size: mockGames[0].size,
-        lastModified: mockGames[0].lastModified,
-        imageURL: mockGames[0].imageURL,
-        cells: mockGames[0].cells,
+    const mappedDto: CreateGameDto = {
+        id: '1',
+        name: 'Test Game',
+        description: 'A test game',
+        mode: Mode.Classic,
+        size: GridSize.Small,
+        lastModified: '2026-01-25',
+        cells: mockGame.cells,
+    };
+
+    const gameFromSession = {
+        name: mockGame.name,
+        gameData: mockGame,
     };
 
     beforeEach(async () => {
-        const mockGameService = {
+        gameService = {
             addGame: jest.fn().mockResolvedValue(undefined),
         };
 
@@ -73,18 +59,12 @@ describe('GameFromSessionController', () => {
             providers: [
                 {
                     provide: GameService,
-                    useValue: mockGameService,
+                    useValue: gameService,
                 },
             ],
         }).compile();
 
         controller = module.get<GameFromSessionController>(GameFromSessionController);
-        gameService = module.get(GameService);
-
-        jest.clearAllMocks();
-    });
-
-    afterEach(() => {
         jest.clearAllMocks();
     });
 
@@ -92,264 +72,64 @@ describe('GameFromSessionController', () => {
         expect(controller).toBeDefined();
     });
 
-    describe('saveGameFromSession', () => {
-        it('should save game from session data successfully', async () => {
-            // Arrange
-            const gameFromSession = {
-                name: 'testGame',
-                gameData: {
-                    id: '1',
-                    name: 'Test Game',
-                    description: 'A test game',
-                    mode: Mode.Classic,
-                    size: '10',
-                    lastModified: '2026-01-25',
-                    isVisible: true,
-                    cells: [],
-                },
-            };
-            const mockGameDtoLocal: CreateGameDto = {
-                id: '1',
-                name: 'Test Game',
-                description: 'A test game',
-                mode: Mode.Classic,
-                size: '10',
-                cells: [],
-                lastModified: '2026-01-25',
-            };
+    it('should save game from session data successfully', async () => {
+        jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(mappedDto);
 
-            // Mock the CreateGameDtoMapper.toDto method
-            jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(mockGameDtoLocal);
-            gameService.addGame.mockResolvedValue(undefined);
+        const result = await controller.saveGameFromSession(gameFromSession);
 
-            const result = await controller.saveGameFromSession(gameFromSession);
-
-            expect(CreateGameDtoMapper.toDto).toHaveBeenCalledWith(gameFromSession.gameData);
-            expect(gameService.addGame).toHaveBeenCalledWith(mockGameDtoLocal);
-            expect(result).toEqual({
-                success: true,
-                message: `Jeu '${gameFromSession.name}' sauvegardé avec succès`,
-                game: mockGameDtoLocal,
-            });
-        });
-
-        it('should handle errors when saving game', async () => {
-            // Arrange
-            const gameFromSession = {
-                name: 'errorGame',
-                gameData: {
-                    id: '1',
-                    name: 'Error Game',
-                    description: 'Error description',
-                    mode: Mode.Classic,
-                    size: '10',
-                    isVisible: true,
-                    cells: [],
-                },
-            };
-            const errorMessage = 'Database error';
-            const mockDto: CreateGameDto = {
-                id: '1',
-                name: 'Error Game',
-                description: 'Error description',
-                mode: Mode.Classic,
-                size: '10',
-                lastModified: '2026-01-25',
-            };
-
-            jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(mockDto);
-            gameService.addGame.mockRejectedValue(new Error(errorMessage));
-
-            const result: SaveGameResponse = await controller.saveGameFromSession(gameFromSession);
-
-            expect(result).toEqual({
-                success: false,
-                message: `Erreur lors de la sauvegarde du jeu '${gameFromSession.name}': ${errorMessage}`,
-                error: errorMessage,
-            });
-        });
-
-        it('should handle DTO mapping errors', async () => {
-            // Arrange
-            const gameFromSession = {
-                name: 'mappingErrorGame',
-                gameData: {
-                    id: '1',
-                    name: 'Invalid Game',
-                    description: 'Invalid description',
-                    mode: Mode.Classic,
-                    size: '10',
-                    isVisible: true,
-                    cells: [],
-                },
-            };
-
-            jest.spyOn(CreateGameDtoMapper, 'toDto').mockImplementation(() => {
-                throw new Error('Mapping error');
-            });
-
-            const result: SaveGameResponse = await controller.saveGameFromSession(gameFromSession);
-
-            expect(result).toEqual({
-                success: false,
-                message: `Erreur lors de la sauvegarde du jeu '${gameFromSession.name}': Mapping error`,
-                error: 'Mapping error',
-            });
-        });
-
-        it('should handle non-Error rejections with unknown error', async () => {
-            const gameFromSession = {
-                name: 'unknownErrorGame',
-                gameData: {
-                    id: '1',
-                    name: 'Unknown Game',
-                    description: 'Unknown description',
-                    mode: Mode.Classic,
-                    size: '10',
-                    isVisible: true,
-                    cells: [],
-                },
-            };
-            const mockDto: CreateGameDto = {
-                id: '1',
-                name: 'Unknown Game',
-                description: 'Unknown description',
-                mode: Mode.Classic,
-                size: '10',
-                lastModified: '2026-01-25',
-            };
-
-            jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(mockDto);
-            gameService.addGame.mockRejectedValue('Unknown');
-
-            const result: SaveGameResponse = await controller.saveGameFromSession(gameFromSession);
-
-            expect(result).toEqual({
-                success: false,
-                message: `Erreur lors de la sauvegarde du jeu '${gameFromSession.name}': ${UNKNOWN_ERROR}`,
-                error: UNKNOWN_ERROR,
-            });
-        });
-
-        it('should work with complete game data', async () => {
-            // Arrange
-            const gameFromSession = {
-                name: 'complexGame',
-                gameData: {
-                    id: '1',
-                    _id: '1',
-                    name: 'Complex Game',
-                    description: 'A complex test game',
-                    mode: Mode.CTF,
-                    size: '250MB',
-                    lastModified: '2026-01-25',
-                    imageURL: 'http://example.com/image.jpg',
-                    isVisible: true,
-                    cells: [],
-                },
-            };
-            const expectedDto: CreateGameDto = {
-                id: '1',
-                name: 'Complex Game',
-                description: 'A complex test game',
-                mode: Mode.CTF,
-                size: '250MB',
-                lastModified: '2026-01-25',
-            };
-
-            jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(expectedDto);
-            gameService.addGame.mockResolvedValue(undefined);
-
-            // Act
-            const result: SaveGameResponse = await controller.saveGameFromSession(gameFromSession);
-
-            // Assert
-            expect(gameService.addGame).toHaveBeenCalledWith(expectedDto);
-            expect(result.success).toBe(true);
-            expect(result.game).toEqual(expectedDto); // Expect the DTO
-        });
-
-        it('should handle minimal game data', async () => {
-            // Arrange
-            const gameFromSession = {
-                name: 'minimalGame',
-                gameData: {
-                    id: '',
-                    name: '',
-                    description: '',
-                    mode: '',
-                    size: '',
-                    isVisible: false,
-                    cells: [],
-                },
-            };
-            const minimalDto: CreateGameDto = {
-                id: '',
-                name: '',
-                description: '',
-                mode: '',
-                size: '',
-                lastModified: '2026-01-25',
-            };
-
-            jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(minimalDto);
-            gameService.addGame.mockResolvedValue(undefined);
-
-            // Act
-            const result: SaveGameResponse = await controller.saveGameFromSession(gameFromSession);
-
-            // Assert
-            expect(CreateGameDtoMapper.toDto).toHaveBeenCalledWith(gameFromSession.gameData);
-            expect(gameService.addGame).toHaveBeenCalledWith(minimalDto);
-            expect(result.success).toBe(true);
-            expect(result.game).toEqual(minimalDto);
+        expect(CreateGameDtoMapper.toDto).toHaveBeenCalledWith(gameFromSession.gameData);
+        expect(gameService.addGame).toHaveBeenCalledWith(mappedDto);
+        expect(result).toEqual({
+            message: `Jeu '${gameFromSession.name}' sauvegarde avec succes`,
+            game: mappedDto,
         });
     });
 
-    it('should work with complete game data', async () => {
-        const expectedDto: CreateGameDto = mockGameDto;
-        jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(expectedDto);
-        gameService.addGame.mockResolvedValue(undefined);
+    it('should throw BAD_REQUEST on DTO mapping errors', async () => {
+        jest.spyOn(CreateGameDtoMapper, 'toDto').mockImplementation(() => {
+            throw new Error('Mapping error');
+        });
 
-        const result: SaveGameResponse = await controller.saveGameFromSession(baseGameFromSession);
-
-        expect(gameService.addGame).toHaveBeenCalledWith(expectedDto);
-        expect(result.success).toBe(true);
-        expect(result.game).toEqual(expectedDto);
+        await expect(controller.saveGameFromSession(gameFromSession)).rejects.toMatchObject({
+            response: {
+                message: 'Mapping error',
+                error: 'Bad Request',
+                statusCode: HttpStatus.BAD_REQUEST,
+            },
+        });
     });
 
-    it('should handle minimal game data', async () => {
-        const minimalDto: CreateGameDto = {
-            id: '',
-            name: '',
-            description: '',
-            mode: '',
-            size: '',
-            lastModified: '2026-01-25',
-            cells: [],
-        };
+    it('should throw INTERNAL_SERVER_ERROR when saving fails with a generic error', async () => {
+        jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(mappedDto);
+        gameService.addGame.mockRejectedValue(new Error('Database error'));
 
-        jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(minimalDto);
-        gameService.addGame.mockResolvedValue(undefined);
-
-        const result: SaveGameResponse = await controller.saveGameFromSession(baseGameFromSession);
-
-        expect(CreateGameDtoMapper.toDto).toHaveBeenCalledWith(baseGameFromSession.gameData);
-        expect(gameService.addGame).toHaveBeenCalledWith(minimalDto);
-        expect(result.success).toBe(true);
-        expect(result.game).toEqual(minimalDto);
+        await expect(controller.saveGameFromSession(gameFromSession)).rejects.toMatchObject({
+            response: {
+                message: 'Database error',
+                error: 'Internal Server Error',
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            },
+        });
     });
-});
 
-describe('GameService integration', () => {
-    it('should properly inject GameService dependency', () => {
-        expect(gameService).toBeDefined();
+    it('should handle non-Error rejections with unknown error', async () => {
+        jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(mappedDto);
+        gameService.addGame.mockRejectedValue('Unknown');
+
+        await expect(controller.saveGameFromSession(gameFromSession)).rejects.toMatchObject({
+            response: {
+                message: UNKNOWN_ERROR,
+                error: 'Internal Server Error',
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            },
+        });
     });
-});
 
-describe('CreateGameDtoMapper integration', () => {
-    it('should have access to CreateGameDtoMapper static methods', () => {
-        expect(CreateGameDtoMapper).toBeDefined();
-        expect(typeof CreateGameDtoMapper.toDto).toBe('function');
+    it('should rethrow HttpException from service', async () => {
+        const httpError = new BadRequestException('Validation failed');
+        jest.spyOn(CreateGameDtoMapper, 'toDto').mockReturnValue(mappedDto);
+        gameService.addGame.mockRejectedValue(httpError);
+
+        await expect(controller.saveGameFromSession(gameFromSession)).rejects.toBe(httpError);
     });
 });

@@ -1,0 +1,250 @@
+:host {
+    --gold: #d4af37;
+    --bronze: #4e3b31;
+    --paper-light: rgba(239, 229, 211, 0.98);
+    --paper-dark: rgba(228, 214, 192, 0.97);
+    display: block;
+    height: 100%;
+    min-height: 0;
+    color: #2f241d;
+    font-family: Georgia, 'Times New Roman', serif;
+}
+
+.game-page {
+    --page-pad-inline: clamp(8px, 1vw, 18px);
+    --layout-gap: 18px;
+    --column-gap: 14px;
+    --section-gap: 14px;
+    --panel-padding: 16px;
+    --left-column-width: 270px;
+    --right-column-width: 286px;
+    --board-column-offset: 0px;
+    --board-size: min(
+        calc(100dvw - (2 * var(--page-pad-inline)) - var(--left-column-width) - var(--right-column-width) - (2 * var(--layout-gap))),
+        calc(100dvh - 128px)
+    );
+    width: 100dvw;
+    height: 100dvh;
+    min-height: 0;
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px var(--page-pad-inline) 12px;
+    box-sizing: border-box;
+    background:
+        radial-gradient(circle at 14% 14%, rgba(212, 175, 55, 0.1), transparent 34%),
+        radial-gradient(circle at 82% 20%, rgba(26, 58, 95, 0.12), transparent 40%),
+        linear-gradient(155deg, rgba(27, 24, 20, 0.72), rgba(20, 20, 20, 0.78)),
+        url('../../../assets/images/match-creation-bg.png') center / cover no-repeat fixed;
+    overflow: hidden;
+}
+
+.game-over-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(17, 24, 39, 0.56);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.game-over-modal {
+    width: min(520px, 100%);
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid rgba(24, 34, 55, 0.1);
+    box-shadow: 0 20px 44px rgba(22, 30, 47, 0.26);
+    padding: 22px;
+    text-align: center;
+}
+
+.game-over-modal h2 {
+    margin: 0 0 10px;
+}
+
+.game-over-modal p {
+    margin: 0;
+    color: #425370;
+    font-weight: 600;
+}
+
+.game-over-win .game-over-title {
+    color: #16a34a;
+}
+
+.game-over-loss .game-over-title {
+    color: #dc2626;
+}
+
+.game-over-info .game-over-title {
+    color: #1d4ed8;
+}
+
+.combat-spectator-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 88;
+    background: rgba(17, 24, 39, 0.68);
+    backdrop-filter: blur(3px);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.combat-spectator-modal {
+    width: min(620px, 100%);
+    background: linear-gradient(180deg, rgba(249, 240, 250, 0.995), rgba(229, 213, 233, 0.985));
+    border-radius: 18px;
+    border: 1px solid rgba(123, 61, 127, 0.58);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+        0 24px 56px rgba(22, 30, 47, 0.36);
+    padding: 28px;
+    text-align: center;
+}
+
+.combat-spectator-modal h2,
+.combat-spectator-modal p {
+    margin: 0;
+}
+
+.combat-spectator-modal h2 {
+    color: #4f173f;
+    font-size: 1.9rem;
+    margin-bottom: 12px;
+}
+
+.combat-spectator-label {
+    color: #4a1858;
+    font-size: 1.12rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.combat-spectator-help {
+    color: #4f5568;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.sanctuary-choice-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: rgba(17, 24, 39, 0.48);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.sanctuary-choice-modal {
+    width: min(520px, 100%);
+    background: #fffdf6;
+    border-radius: 18px;
+    border: 1px solid rgba(166, 134, 48, 0.18);
+    box-shadow: 0 22px 44px rgba(22, 30, 47, 0.24);
+    padding: 22px;
+    display: grid;
+    gap: 14px;
+}
+
+.sanctuary-choice-modal h2,
+.sanctuary-choice-modal p {
+    margin: 0;
+}
+
+.sanctuary-choice-modal p {
+    color: #4f5d73;
+}
+
+.sanctuary-choice-timer {
+    font-weight: 700;
+    color: #7b5a12;
+}
+
+.sanctuary-choice-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.flag-transfer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 85;
+    background: rgba(17, 24, 39, 0.48);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.flag-transfer-modal {
+    width: min(520px, 100%);
+    background: #f8fbff;
+    border-radius: 18px;
+    border: 1px solid rgba(44, 107, 191, 0.2);
+    box-shadow: 0 22px 44px rgba(22, 30, 47, 0.24);
+    padding: 22px;
+    display: grid;
+    gap: 14px;
+}
+
+.flag-transfer-modal h2,
+.flag-transfer-modal p {
+    margin: 0;
+}
+
+.flag-transfer-modal p {
+    color: #3f4f68;
+}
+
+.flag-transfer-timer {
+    font-weight: 700;
+    color: #245d9e;
+}
+
+.flag-transfer-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.abandon-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 85;
+    background: rgba(17, 24, 39, 0.52);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.abandon-confirm-modal {
+    width: min(460px, 100%);
+    background: linear-gradient(180deg, rgba(244, 236, 222, 0.98), rgba(232, 220, 198, 0.96));
+    border-radius: 18px;
+    border: 1px solid rgba(124, 95, 72, 0.7);
+    box-shadow:
+        inset 0 0 0 1px rgba(212, 175, 55, 0.08),
+        0 18px 36px rgba(0, 0, 0, 0.28);
+    padding: 22px;
+    display: grid;
+    gap: 14px;
+    text-align: center;
+}
+
+.abandon-confirm-modal h2,
+.abandon-confirm-modal p {
+    margin: 0;
+}
+
+.abandon-confirm-modal p {
+    color: #5f5141;
+    line-height: 1.45;
+}
+
+.abandon-confirm-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}

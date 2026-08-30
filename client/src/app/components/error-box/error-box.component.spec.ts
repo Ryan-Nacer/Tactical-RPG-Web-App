@@ -5,6 +5,16 @@ const FIRST_INDEX = 0;
 const SECOND_INDEX = 1;
 const THIRD_INDEX = 2;
 
+/**
+ * Strategie :
+ * - tester ErrorBoxComponent comme composant d'affichage d'erreurs transitoires
+ * - verifier le rendu, la fermeture et la rotation des messages
+ *
+ * Cas limites cibles :
+ * - une seule erreur
+ * - plusieurs erreurs en file
+ * - recreation du composant avec un etat initial different
+ */
 describe('ErrorBoxComponent', () => {
     let component: ErrorBoxComponent;
     let fixture: ComponentFixture<ErrorBoxComponent>;
@@ -41,16 +51,6 @@ describe('ErrorBoxComponent', () => {
         const compiled = fixture.nativeElement as HTMLElement;
         const errorBox = compiled.querySelector('.error-box');
         expect(errorBox).toBeTruthy();
-    });
-
-    it('should display the title "Erreurs"', () => {
-        component.errors = [mockErrors[FIRST_INDEX]];
-        fixture.detectChanges();
-
-        const compiled = fixture.nativeElement as HTMLElement;
-        const title = compiled.querySelector('.title');
-        expect(title).toBeTruthy();
-        expect(title?.textContent).toContain('Erreurs');
     });
 
     it('should display all error messages in correct order \

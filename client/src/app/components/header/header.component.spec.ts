@@ -1,9 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { HeaderComponent } from './header.component';
 import { provideRouter } from '@angular/router';
-import { RouterTestingHarness } from '@angular/router/testing';
+import { HeaderComponent } from './header.component';
 
+/**
+ * Strategie :
+ * - tester HeaderComponent comme composant de navigation minimal
+ * - verifier son instanciation avec le routeur fourni par le banc de test
+ *
+ * Cas limites cibles :
+ * - aucun cas limite complexe ici, le composant doit surtout rester montable
+ *   dans toutes les pages qui l'importent
+ */
 describe('HeaderComponent', () => {
     let component: HeaderComponent;
     let fixture: ComponentFixture<HeaderComponent>;
@@ -11,10 +18,8 @@ describe('HeaderComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [HeaderComponent],
-            providers: [provideRouter([{ path: '**', component: HeaderComponent }])],
+            providers: [provideRouter([])],
         }).compileComponents();
-        const harness = await RouterTestingHarness.create();
-        await harness.navigateByUrl('/', HeaderComponent);
 
         fixture = TestBed.createComponent(HeaderComponent);
         component = fixture.componentInstance;

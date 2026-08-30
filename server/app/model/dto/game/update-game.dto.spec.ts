@@ -4,6 +4,18 @@ import { TileId } from '@common/game';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 
+/**
+ * Strategie :
+ * - verifier qu'un patch vide reste autorise pour UpdateGameDto
+ * - verifier que les cellules imbriquees sont bien transformees et validees
+ *
+ * Cas limites cibles :
+ * - payload vide
+ * - tuile invalide dans une cellule imbriquee
+ *
+ * Ces cas couvrent le contrat permissif d'une mise a jour partielle sans laisser passer
+ * des valeurs de grille corrompues.
+ */
 describe('UpdateGameDto', () => {
     it('should validate an empty dto', async () => {
         const dto = new UpdateGameDto();

@@ -4,6 +4,17 @@ import { Message } from '@common/message';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 
+/**
+ * Strategie :
+ * - verifier que DateController delegue entierement la production de l'heure a DateService
+ * - verifier la forme de la reponse exposee par la route
+ *
+ * Cas limites cibles :
+ * - aucun calcul supplementaire dans le controleur
+ * - reutilisation directe de la valeur retournee par le service
+ *
+ * Ce test reste simple car le controleur n'a qu'une responsabilite de delegation.
+ */
 describe('DateController', () => {
     let controller: DateController;
     let dateService: SinonStubbedInstance<DateService>;

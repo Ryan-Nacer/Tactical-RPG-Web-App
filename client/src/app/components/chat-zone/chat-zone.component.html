@@ -1,0 +1,39 @@
+<div class="chat-container">
+    <div class="chat-header">
+        <p class="chat-subtitle">Connecté en tant que {{ currentUser }}</p>
+    </div>
+
+    <div class="chat-messages" #scrollContainer (scroll)="onMessagesScroll()">
+        @for (msg of (chatService.messages$ | async); track msg.time + msg.sender) {
+        <div class="message-row" [class.is-own]="isOwnMessage(msg)">
+            <div class="message-item" [class.is-own]="isOwnMessage(msg)">
+                <div class="message-meta">
+                    <span class="sender">{{ msg.sender }}</span>
+                    <span class="timestamp">{{ msg.time }}</span>
+                </div>
+                <p class="text">{{ msg.text }}</p>
+            </div>
+        </div>
+        } @empty {
+        <div class="no-messages">Aucun message pour le moment.</div>
+        }
+    </div>
+
+    <div class="chat-input">
+        <input
+            [(ngModel)]="messageText"
+            [disabled]="isAbandoned"
+            (keyup.enter)="send()"
+            maxlength="200"
+            placeholder="{{ isAbandoned ? 'Vous avez abandonne la partie' : 'Ecrivez un message...' }}"
+        />
+        <button (click)="send()" [disabled]="!messageText.trim() || isAbandoned">Envoyer</button>
+    </div>
+
+    <div class="chat-footer">
+        <span class="char-count">{{ messageText.length }}/200</span>
+        @if (isAbandoned) {
+        <span class="status-label">Discussion verrouillee</span>
+        }
+    </div>
+</div>

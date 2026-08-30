@@ -1,58 +1,122 @@
-<h2>Création du personnage</h2>
+<div class="page-container">
+    <h2 class="page-title">Créez votre personnage</h2>
 
-<div class="character-creation-form">
-    <div class="avatar-card">
-        <div class="avatar-name">
-            <label>Nom du personnage:</label>
-            <input type="text" [(ngModel)]="name" placeholder="Entrez le nom du personnage" />
+    <form #characterForm="ngForm" class="character-creation-form">
+        <!-- LEFT: name + avatar + bonus + dice (connected panel) -->
+        <div class="form-left">
+            <div class="card combined-panel">
+                <div class="panel-section">
+                    <h3>Nom du héros</h3>
+                    <input
+                        type="text"
+                        name="characterName"
+                        [(ngModel)]="name"
+                        placeholder="Entrez le nom du personnage"
+                        required
+                        minlength="3"
+                        maxlength="12"
+                        #characterName="ngModel"
+                    />
+                    @if (characterName.touched && characterName.errors) { @if (characterName.errors['minlength']) {
+                    <p class="error">Le nom doit contenir au moins 3 caractères</p>
+                    } @if (characterName.errors['maxlength']) {
+                    <p class="error">Le nom ne peut pas dépasser 12 caractères</p>
+                    } }
+                </div>
+                <div class="panel-divider"></div>
+                <div class="panel-section avatar-section">
+                    <h3>Avatar</h3>
+                    <app-avatar-list
+                        [randomAvatarIndex]="randomAvatarIndex()"
+                        (avatarSelected)="onAvatarSelected($event)"
+                        [takenAvatars]="takenAvatars"
+                        [selectedAvatarName]="selectedAvatar?.avatarName ?? null"
+                    >
+                    </app-avatar-list>
+                    @if (avatarAvailabilityMessage) {
+                    <p class="error avatar-error">{{ avatarAvailabilityMessage }}</p>
+                    } @if (!selectedAvatar) {
+                    <p class="player-attribute-warning">Veuillez sélectionner un avatar</p>
+                    } @else {
+                    <p class="selected-avatar-name">Avatar sélectionné : {{ selectedAvatar.avatarName }}</p>
+                    }
+                </div>
+                <div class="panel-divider"></div>
+                <div class="panel-section">
+                    <h3>Bonus d'attribut</h3>
+                    <div class="bonus">
+                        <button type="button" (click)="applyBonus('life')" [class.selected]="bonusAttribute === 'life'">
+                            <span class="btn-icon">❤️</span> Vie
+                        </button>
+                        <button type="button" (click)="applyBonus('speed')" [class.selected]="bonusAttribute === 'speed'">
+                            <span class="btn-icon">⚡️</span> Rapidité
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-divider"></div>
+                <div class="panel-section">
+                    <h3>Répartition des dés de combat</h3>
+                    <p class="player-attribute-warning">Attribuez votre D6 de combat</p>
+                    <div class="dice-row">
+                        <button type="button" (click)="assignDice('D4')" [class.selected]="dice.attack === 'D4'">Défense</button>
+                        <button type="button" (click)="assignDice('D6')" [class.selected]="dice.attack === 'D6'">Attaque</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div>
-            <h3>Choisir un avatar</h3>
-            <app-avatar-list [randomAvatarIndex]="randomAvatarIndex()" (avatarSelected)="onAvatarSelected($event)"> </app-avatar-list>
-            @if (selectedAvatar) {
-            <p>Avatar sélectionné: {{ selectedAvatar.avatarName }}</p>
-            }
+        <!-- RIGHT: stats + actions -->
+        <div class="form-right">
+            <div class="card">
+                <h3>Statistiques</h3>
+                <div class="stats-grid">
+                    <div class="stat" [class.favored]="bonusAttribute === 'life'">
+                        <span class="symbol">❤️</span>
+                        <span>Vie</span>
+                        <strong>{{ attributes.life }}</strong>
+                    </div>
+                    <div class="stat" [class.favored]="bonusAttribute === 'speed'">
+                        <span class="symbol">⚡️</span>
+                        <span>Rapidité</span>
+                        <strong>{{ attributes.speed }}</strong>
+                    </div>
+                    <div class="stat" [class.favored]="dice.attack === 'D6'">
+                        <span class="symbol">⚔️</span>
+                        <span>Attaque</span>
+                        <strong>{{ dice.attack }}</strong>
+                    </div>
+                    <div class="stat" [class.favored]="dice.defense === 'D6'">
+                        <span class="symbol">🛡️</span>
+                        <span>Défense</span>
+                        <strong>{{ dice.defense }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card actions-card">
+                <button type="button" class="random-button" (click)="generateRandomCharacter()">Générer un personnage aléatoire</button>
+                <button
+                    type="submit"
+                    class="save-button"
+                    (click)="saveAvatarChoice()"
+                    [disabled]="characterForm.invalid || !selectedAvatar || !bonusAttribute"
+                >
+                    Sauvegarder et attendre
+                </button>
+            </div>
         </div>
+    </form>
+</div>
 
-        <hr />
-
-        <div class="section">
-            <button class="random-character" (click)="generateRandomCharacter()">Générer un personnage aléatoire</button>
-        </div>
-
-        <div class="section">
-            <button class="save-avatar" (click)="saveAvatarChoice()" [disabled]="!selectedAvatar">Sauvegarder et attendre</button>
-        </div>
-    </div>
-
-    <div class="avatar-characteristics">
-        <div class="section">
-            <h3>Attributs</h3>
-            <p>Vie : {{ attributes.life }}</p>
-            <p>Rapidité : {{ attributes.speed }}</p>
-            <p>Attaque : {{ attributes.attack }}</p>
-            <p>Défense : {{ attributes.defense }}</p>
-        </div>
-
-        <div class="section">
-            <h3>Bonus +2</h3>
-            <button (click)="applyBonus('life')">Bonus sur Vie</button>
-            <button (click)="applyBonus('speed')">Bonus sur Rapidité</button>
-
-            @if (bonusAttribute) {
-            <p>Bonus appliqué sur : {{ bonusAttributeLabel }}</p>
-            }
-        </div>
-
-        <hr />
-
-        <div class="section">
-            <h3>Assignation des dés</h3>
-            <p>Attaque : {{ dice.attack }}</p>
-            <p>Défense: {{ dice.defense }}</p>
-            <button (click)="assignDice('D6')">D6 sur Attaque</button>
-            <button (click)="assignDice('D4')">D4 sur Attaque</button>
+@if (showLockedRoomPopup) {
+<div class="modal-backdrop">
+    <div class="modal-container">
+        <h2>Salle verrouillée</h2>
+        <p>{{ errorMessage }}</p>
+        <div class="modal-actions">
+            <button type="button" (click)="retryJoin()">Réessayer</button>
+            <button type="button" (click)="goBack()">Retour à la vue initiale</button>
         </div>
     </div>
 </div>
+}

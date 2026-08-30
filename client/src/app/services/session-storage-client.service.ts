@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Game as ClientGame } from '@app/interfaces/game';
-import { Game as CommonGame } from '@common/game';
+import { Game } from '@common/game';
 import { Observable } from 'rxjs';
 import { GameClientService } from './game-client.service';
 
@@ -8,43 +7,32 @@ import { GameClientService } from './game-client.service';
     providedIn: 'root',
 })
 export class SessionStorageClientService {
-    constructor(private gameClientService: GameClientService) {}
+    constructor(private readonly gameClientService: GameClientService) {}
 
-    saveGameInSessionStorage(game: ClientGame): void {
-        // Sauvegarder directement le jeu dans sessionStorage
+    saveGameInSessionStorage(game: Game): void {
         sessionStorage.setItem(game.id, JSON.stringify(game));
     }
 
-    retrieveGameInSessionStorage(gameId: string): ClientGame | undefined {
+    retrieveGameInSessionStorage(gameId: string): Game | undefined {
         const gameData = sessionStorage.getItem(gameId);
-        if (gameData === null) {
+        if (!gameData) {
             return undefined;
         }
 
         return JSON.parse(gameData);
     }
 
-    /**
-     * Supprime un jeu du sessionStorage
-     */
     removeGameFromSessionStorage(gameName: string): void {
         sessionStorage.removeItem(gameName);
     }
 
-    /**
-     * Envoie un jeu du sessionStorage au serveur
-     */
-
-    sendGameToServer(gameName: string): Observable<CommonGame> {
+    sendGameToServer(gameName: string): Observable<Game> {
         const game = this.retrieveGameInSessionStorage(gameName);
 
         if (!game) {
             throw new Error(`Jeu '${gameName}' introuvable dans SessionStorage`);
         }
 
-        // Supprimer la propriété _id qui n'est pas dans CreateGameDto
-        const gameWithoutMongoId = { ...game, size: String(game.size) };
-
-        return this.gameClientService.addGame(gameWithoutMongoId);
+        return this.gameClientService.addGame(game);
     }
 }

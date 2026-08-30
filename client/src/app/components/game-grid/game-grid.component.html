@@ -1,15 +1,59 @@
-<div class="game-grid" [style.gridTemplateColumns]="gridTemplate" [style.gridTemplateRows]="gridTemplate" (mouseleave)="onGridMouseLeave()">
+<div
+    class="game-grid"
+    [style.gridTemplateColumns]="gridTemplate"
+    [style.gridTemplateRows]="gridTemplate"
+    [style.--cell-player-size.px]="playerSizePx"
+    (mouseleave)="onGridMouseLeave()"
+>
     @for ( cell of cells; track $index ) {
     <div
         class="game-grid-cell"
         [class]="getTileClass(cell)"
+        [class.door-open]="isDoorOpen(cell)"
+        [class.door-closed]="isDoorClosed(cell)"
         [class.is-selected]="isSelected(cell)"
+        [class.is-reachable]="isReachable(cell)"
+        [class.is-action-target]="isActionTarget(cell)"
+        [class.is-transfer-target]="isTransferTarget(cell)"
+        [class.is-placement-preview]="isPlacementPreviewCell(cell)"
+        [class.is-placement-preview-valid]="isValidPlacementPreview(cell)"
+        [class.is-placement-preview-invalid]="isInvalidPlacementPreview(cell)"
         (mousedown)="onCellMouseDown($event, cell)"
         (mouseenter)="onCellMouseEnter(cell)"
         (contextmenu)="onCellRightClick($event)"
     >
-        @if (cell.object) {
+        @if (cell.object) { @if (getObjectImageSrc(cell); as objectImageSrc) {
+        <img
+            class="cellObjectImage"
+            [class.flag-image]="cell.object === objectIdEnum.Flag"
+            [class.shrine-image]="isShrineTopLeft(cell)"
+            [class.shrine-inactive]="isShrineInactive(cell)"
+            [src]="objectImageSrc"
+            [alt]="getObjectDescription(cell.object)"
+        />
+        } @else if (shouldRenderObjectFallback(cell)) {
         <span class="cellObject" [class]="getObjectClass(cell.object)" [title]="getObjectDescription(cell.object)"></span>
+        } } @if (placementPreview?.imageSrc && isPlacementPreviewTopLeft(cell)) {
+        <img
+            class="cellObjectImage shrine-image placement-preview-image"
+            [class.is-invalid]="placementPreview?.isValid === false"
+            [src]="placementPreview?.imageSrc"
+            alt=""
+        />
+        } @for (player of getPlayersAtCell(cell); track player.id) {
+        <span
+            class="cellPlayer"
+            [class.active-player]="player.isActive"
+            [class.team-a]="isCtfMode && player.team === 'A'"
+            [class.team-b]="isCtfMode && player.team === 'B'"
+            [title]="player.name"
+        >
+            @if (player.avatarImageUrl) {
+            <img class="cellPlayer-avatar" [src]="player.avatarImageUrl" [alt]="'Avatar de ' + player.name" />
+            } @else {
+            <span class="cellPlayer-label">{{ getPlayerMarkerLabel(player) }}</span>
+            }
+        </span>
         }
     </div>
     }

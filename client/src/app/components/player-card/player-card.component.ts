@@ -8,7 +8,6 @@ import { AvatarName } from '@common/player';
     styleUrl: './player-card.component.scss',
 })
 export class PlayerCardComponent {
-    // injection de l'image par le composant parent
     @Input() imageUrl: string = '';
     @Input() avatarName: AvatarName;
 }

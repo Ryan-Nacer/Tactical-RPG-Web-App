@@ -7,6 +7,15 @@ type ImageCaptureServiceWithPrivate = {
     compressDataUrl: (dataUrl: string, maxWidth?: number, quality?: number) => Promise<string>;
 };
 
+/**
+ * Strategie :
+ * - tester ImageCaptureService comme adaptateur autour de NgxCaptureService
+ * - verifier la capture nominale et la compression appliquee avant la sauvegarde
+ *
+ * Cas limites cibles :
+ * - erreur de capture provenant de la dependance externe
+ * - erreurs de compression qui doivent etre propagees
+ */
 describe('ImageCaptureService', () => {
     let service: ImageCaptureService;
     let ngxCaptureServiceMock: jasmine.SpyObj<NgxCaptureService>;
@@ -21,11 +30,11 @@ describe('ImageCaptureService', () => {
         service = TestBed.inject(ImageCaptureService);
     });
 
-    it('devrait être créé', () => {
+    it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
-    it('captureImage appelle getImage avec (element, true)', async () => {
+    it('captureImage calls getImage with (element, true)', async () => {
         const element = document.createElement('div');
 
         ngxCaptureServiceMock.getImage.and.returnValue(of('data:image/png;base64,AAA'));
@@ -41,7 +50,7 @@ describe('ImageCaptureService', () => {
         expect(ngxCaptureServiceMock.getImage).toHaveBeenCalledWith(element, true);
     });
 
-    it('captureImage propage une erreur si getImage échoue', async () => {
+    it('captureImage propagates an error when getImage fails', async () => {
         const element = document.createElement('div');
         ngxCaptureServiceMock.getImage.and.returnValue(throwError(() => new Error('getImage failed')));
 

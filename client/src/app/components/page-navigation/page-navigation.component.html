@@ -1,0 +1,9 @@
+@if (shouldShowBackButton()) {
+<nav class="page-navigation" aria-label="Navigation de page">
+    <button type="button" class="back-button" (click)="goBack()" aria-label="Revenir a la page precedente">
+        <span class="back-icon" aria-hidden="true">&#x2039;</span>
+    </button>
+
+    <div class="page-title" aria-live="polite">{{ pageLabel }}</div>
+</nav>
+}
